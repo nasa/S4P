@@ -1,0 +1,3903 @@
+Revision history for S4P:
+--------------------------------------------------------------------------------
+September 11, 2015
+--------------------------------------------------------------------------------
+
+1. S4P 5.28.3 Release Notes
+
+1.1 Functional Changes
+
+    None.
+
+1.2 Detailed File Changes
+
+S4P::EDOS.pm
+
+    * Updated for SNPP's multiple APIDs in dataset.
+
+S4P::FileGroup.pm
+
+    * Updated http_get sub to handle partial write.
+
+S4P::MetFile.pm
+
+    * Updated xml2odl routine for OCO-2 metadata extraction.
+
+--------------------------------------------------------------------------------
+May 20, 2011
+--------------------------------------------------------------------------------
+
+1. S4P 5.28.2 Release Notes
+
+1.1 Functional Changes
+
+    None.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+S4P::FileSpec.pm
+
+    * Added HDF4MAP file_type support.
+
+--------------------------------------------------------------------------------
+August 20, 2010
+--------------------------------------------------------------------------------
+
+1. S4P 5.28.1 Release Notes
+
+1.1 Functional Changes
+
+    None.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Added QA file_type support.
+
+--------------------------------------------------------------------------------
+May 14, 2010
+--------------------------------------------------------------------------------
+
+1. S4P 5.28.0 Release Notes
+
+1.1 Functional Changes
+
+    None.
+
+1.2 Detailed File Changes
+
+S4P::TimeTools.pm
+
+    * Updated Time::Local::timegm calls with 4-digit year instead of 1900 offset.
+
+--------------------------------------------------------------------------------
+October 19, 2009
+--------------------------------------------------------------------------------
+
+1. S4P 5.27.2 Release Notes
+
+1.1 Functional Changes
+
+    * Added configurahble restart script support.
+
+    * Added HTTP protocol option in S4P::FileGroup::download.
+
+1.2 Detailed File Changes
+
+S4P.pm
+
+    * Added stop_station_dir to stop a station from a directory other than
+      the current one.  This takes over former functionality of stop_station,
+      with the latter being just a special case (stop_station_dir('.')).
+    * Added set_config_var routine.
+
+S4P::FileGroup.pm
+
+    * Added http_get support in download method.
+    * Updated passing value in get_ftp_login call in http_get method.
+
+S4P::Station.pm
+
+    * Added cfg_blackouts to allow one to black out jobs, i.e., prevent 
+      certain types of jobs from running at certain times during the day.
+    * Add configurable restart function for scout job.
+    * Fixed some formatting
+    * Add configurable restart script and fixed some scout job handling
+
+s4p_station.pl
+
+    * Added ability of station to "vanish" in resopnse to a DO.VANISH work order
+      (needed for kits).
+
+--------------------------------------------------------------------------------
+November 21, 2008
+--------------------------------------------------------------------------------
+
+1. S4P 5.27.1 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 9032 Fixed: Repeating Warning Message on GUI Start-up Fixed - A 
+      repeating message in the window from which the TkStat monitor is brought 
+      up has been fixed.
+
+   2. Bug 9321 Fixed: Repeating message in Log File Fixed - A message that had 
+      been repeating on the station.log file when %cfg_reservations is set has 
+      been resolved.
+
+   3. ECHO Enhancements - Code was added to prevent infinite looping when ECHO 
+      response is faulty. Several functions were wrapped in eval() to detect 
+      ECHO outages.
+
+   4. Modified Namespaces - Namespaces of maxResults, cursorElement, 
+      resetSetGuid, and clientInfo were modified. 
+
+1.2 Detailed File Changes
+
+S4P.pm
+
+    * For Bug 9032, removed spurious warning messages. Also, fixed bug causing 
+      return string to not be printed to log file for failed jobs.
+
+S4P::EchoSearch.pm
+
+    * Modified namespaces of maxResults, cursorElement, resutSetGuid and 
+      clientInfo.
+    * Wrapped ECHO login() in eval() to detect ECHO outages.
+    * Prevent infinite looping when ECHO response is faulty.
+
+S4P::Job.pm
+
+    * For Bug 9032, removed spurious warning messages. Also, fixed bug causing 
+      return string to not be printed to log file for failed jobs.
+
+S4P::Station.pm
+
+    * For Bug 9321, made fix for repeating message in station.log file when 
+      reservations are used and added a workaround in the deprecated 
+      stationmaster.pl as well.
+    * For Bug 9032, removed spurious warning messages. Also, fixed bug causing 
+      return string to not be printed to log file for failed jobs.
+
+--------------------------------------------------------------------------------
+September 16, 2008
+--------------------------------------------------------------------------------
+
+1. S4P 5.27.0 Release Notes
+
+1.1 Functional Changes
+
+   1. Stationmaster Refactored - The Stationmaster script, stationmaster.pl, 
+      was modified to use "strict" and the Safe module, both for safety's sake. 
+      There should be no change to functionality or performance, but this 
+      required significant refactoring, so test with your instance thoroughly. 
+      Note that stationmaster.pl should be considered deprecated and subject 
+      for removal in some future release.
+
+   2. Object-Oriented Station - In an attempt to move into the 21st century, an 
+      object-oriented replacement for stationmaster is being introduced. It 
+      consists of a S4P::Station class, a S4P::Job class, and a smaller main 
+      program, s4p_station.pl. The old stationmaster.pl is deprecated, but can 
+      be run in "Classic" mode, i.e., by specifying "-C" on the command line of 
+      either s4p_station.pl or tkstat.pl. In addition, s4p_start.sh has been 
+      added to start up s4p_station.pl, with s4pstart.ksh (classic 
+      Stationmaster) deprecated. N.B.: s4p_station.pl is backward compatible 
+      with existing station.cfg files EXCEPT for its treatment of station-
+      specific sort functions. With the new code structure, station-specific 
+      sort functions MUST be prototyped. For example, note the "($$)" in the 
+      code below:
+
+      package MySort;
+       1;
+       sub by_strlen ($$) {
+           my ($a, $b) = @_;
+           return (length($a) <=> length($b));
+       };
+
+   3. Station Remote Polling Directory- The new Station class supports a 
+      $cfg_poll_dir setting in the configuration file, which allows it to poll 
+      an alternate directory for incoming work orders. Detected work orders are 
+      then moved into the station directory for processing. 
+
+   4. Bug 7260 Fixed: Default Tkstat Behavior - A modification was made so that 
+      if no stations are passed to the tkstat.pl script on the command line, it 
+      will look for the station.list file and use that instead.
+
+   5. Bug 7275 Fixed: -R Option of s4p_repeat_work_order.pl Does Not Work - A 
+      fix was made so that s4p_repeat_work_order.pl exits with the exit code 
+      of the child process. 
+
+   6. Bug 8029 Fixed (partially): Valid Work Orders in HOLD Directory - The 
+      script tkstat.pl will now change station buttons to blue (pending color) 
+      if it detects work orders in a subdirectory named HOLD (S4PM convention) 
+      or .hold (S4PA convention).
+
+   7. Bug 8035 Fixed: Enhanced GUI Support in TkStat - Changed buttons to 
+      dynamically created option menu. 
+
+1.2 Detailed File Changes
+
+S4P::EchoSearch.pm
+
+    * Includes methods for spatial search; switched to using locally developed 
+      spatial search instead of ECHO.
+
+S4P::TkJob.pm
+
+    * Changed interfaces, failure handlers and manual overrides to dynamically 
+      created pseudo-option menus
+    * Added classic mode startup of stations 
+
+s4p_repeat_work_order.pl
+
+    * Fix for Bug 7275. With the -R option, the script will exit with the exit 
+      code of the child process. 
+
+tkstat.pl
+
+    * Modification for Bug 7260. tkstat.pl was modified to look for a 
+      station.list file if no argument is specified, or a station.cfg file 
+      otherwise. It will also examine directories for a station.cfg file, 
+      excluding them from the display if not, thus eliminating some of the 
+      annoying start-up messages.
+    * Added "Classic" mode, invoked with -C command line option, to start up 
+      stationmaster.pl instead of s4p_station.pl. 
+
+s4p_start.sh
+
+    * New BASH script, which starts up s4p_station.pl instead of 
+      stationmaster.pl. 
+
+s4p_station.pl
+
+    * New script. Refactored version of stationmaster.pl. 
+
+--------------------------------------------------------------------------------
+April 30, 2008
+--------------------------------------------------------------------------------
+
+1. S4P 5.26.0 Release Notes
+
+1.1 Functional Changes
+
+   1.  Bug 6538 Fixed: S4P stationmaster FAILED.WORK_ORDERS; Duplicate Work
+       Orders in S4PA - Check to see if candidate work orders are files, thus 
+       ignoring RUNNING and FAILED directories.
+   2.  Bug 6664 Fixed: Make cfg_max_failures Job-Specific - $cfg_max_failures 
+       can now be set to an anonymous hash instead of a scalar, like: 
+       $cfg_max_failures = {'ABLE' => 1} in which case it will stop processing 
+       ABLE jobs when a failure for that job_type is in the station, but 
+       continue processing other job_types.
+   3.  Bug 7176 Fixed: Annoying Resize in Tkstat GUI Status Bar for Long Work 
+       Order Names - Replaced homemade status bar with Tk::Balloon.
+   4.  Station Anomaly Handling - Stationmaster (or any other program) can now 
+       raise anomalies, by writing to files in the station directory of the 
+       form ANOMALY-something.log. These are error or warning conditions that 
+       are not serious enough to warrant shutting down the station, but should 
+       be looked at. The drill-down interface in tkstat.pl (TkJob) will now 
+       recognize such files (by the filename) and present the user with the 
+       option to Clear Anomaly, at which point it will delete the anomaly file. 
+       Current anomalies raised by stationmaster are:
+         1. MAXFAIL: failed jobs >= $cfg_max_failures
+         2. SLOW_FS: filesystem slow, detected by unexpected zero-length work 
+            orders or duplicate work orders
+         3. BAD_CONFIG: a work order of unrecognized job_type was found and 
+            moved to FAILED.WORK_ORDERS
+         4. BAD_PERM: bad permissions, recognized by failure to write a virtual 
+            job work order
+         5. TOO_QUIET: station has gone too long without receiving a work order 
+            (configured via $cfg_max_interval) 
+   5.  Fixes and Enhancements to Tkstat monitor:
+         1.  The Success column header has been renamed OK to save space.
+         2.  Bug 6433 (tkstat enhancement request: display job count in a 
+             station): the number of pending jobs and max_children are now 
+             displayed.
+         3. The counter reset button has been moved to the bottom of the window.
+         4. The station button turns yellow if any ANOMALY files are detected 
+            in the station.
+         5.  The drill-down S4PM Job Monitor has a new button to Clear Anomaly.
+         6. A station "status bar" shows the anomaly filename (if it exists) 
+            when mousing over the station button. If there are more than one, 
+            it shows one of them with an ellipsis (...).
+         7. The "you are here" bar for jobs has been shortened to be more 
+            aligned with the job grid, and allow the station status bar
+         8. Bug 6665 Fixed: Enable Cut and Paste in Tkstat Dialogs - Dialog 
+            boxes have been changed from labels to scrolled read-only text 
+            areas.
+   6.  Tkargus Refresh - Changed refresh behaviour of tkargus.pl to do it in 
+       small chunks, not all at once, so that the interface will remain 
+       responsive. Also added the ability to refresh one particular machine on 
+       demand.
+
+1.2 Detailed File Changes
+
+S4P.pm
+
+    * Anomalies: Added raise_anomaly() and clear_anomaly() 
+
+S4P::PDR
+
+    * If PDR parsing fails, reports which FILE_GROUP it failed on (starting 
+      with 1). 
+
+S4P::S4PTk
+
+    * Bug 6665 - use a Scrolled Read-Only Text area instead of a label for both 
+      S4P::S4PTk::redirect_logger and S4P::S4PTk::confirm. 
+
+S4P::TkJob
+
+    * Add Clear Anomaly button 
+
+stationmaster.pl
+
+    * Raise anomalies for several non-fatal conditions (see Functional Changes)
+    * Move max_failure checking to its own routine, check_max_failures, and 
+      support job-type-specific max_failure settings
+    * Bug 6538 Fixed: S4P stationmaster FAILED.WORK_ORDERS; duplicate work
+      orders in S4PA - Check to see if candidate work orders are files, thus 
+      ignoring RUNNING and FAILED directories.
+    * Added ActivityMonitor to raise TOO_QUIET anomaly if $cfg_max_interval 
+      seconds go by without a work order 
+
+tkargus.pl
+
+    * Change to refresh behaviour (required extensive rewrite)
+    * Recognizes 'localhost' as a valid machine, and will skip ssh in that case 
+
+tkstat.pl
+
+    * Significant layout changes (see Functional Changes) 
+
+--------------------------------------------------------------------------------
+February 26, 2008
+--------------------------------------------------------------------------------
+
+1. S4P 5.25.0 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 4776 Fixed: View Disk Allocate and Usage Button Grayed Out in Multi-
+      User Mode: Fixed tkstat.pl to account for different number of standard 
+      buttons in multi-user mode (i.e., no Stop Fast button)
+
+   2. Bug 5075 Fixed: Acquire Data Via S4PA Machine Request Interface (MRI) - 
+      Enhancements were made so that Acquire Data (in S4PM) could retrieve data 
+      via the S4PA machine request interface (MRI). Part of the fix was to
+      added a new routine for handling HTTP requests, http_get().
+
+   3. Bug 5169 Fixed: Multi-User Mode Does Not Support Multiple Users Running 
+      Stringmaker - A bug prevented all but one S4PM user from being able to run
+      Stringmaker. Part of the resolution was a change to s4p_pooldb.pl.
+
+   4. Bug 5835 Fixed: Data Version of 000 Not Supported - A bug caused failures 
+      when the data version was set to '000'. This has been fixed and such data 
+      versions are now supported.
+
+   5. Bug 5906 Fixed: Automatically restart defunct jobs - Stationmaster has 
+      been enhanced to optionally restart defunct jobs (i.e., RUNNING.* 
+      directories whose process_id is no longer active) automatically on 
+      restart. This is triggered through a configuration variable 
+      $cfg_restart_defunct_jobs.
+
+1.2 Detailed File Changes
+
+S4P.pm
+
+    * Modified check_job to allow for interrogating whether the process_id in a 
+      running directory is still active
+    * Added is_defunct_job to detect defunct jobs
+    * Added restart_defunct_jobs to restart all defunct jobs
+    * Moved fail_job() and rename_job_dir() from stationmaster.pl
+    * For Bug 5075, added http_get() utility routine 
+
+S4P::FileGroup.pm
+
+    * For Bug 5075, added http_get() method.
+    * Added some "use strict" directives, along with some "my" statements to be 
+      compliant.
+    * Fix for Bug 5835 with changes in in data_version() and ssh_get(). 
+
+S4P::PDR.pm
+
+    * For Bug 5075, added http_get() method 
+
+s4p_pooldb.pl
+
+    * To help with Bug 5169, added the -m option that indicates multi-user mode. 
+stationmaster.pl
+
+    * Added call to restart_defunct_jobs() if $cfg_restart_defunct_jobs is set 
+      to non-zero.
+    * Moved code out of main() and into subroutines as follows:
+          o lock_station()
+          o run_reserved_job()
+          o require_command_packages()
+          o add_station_to_perllib() 
+
+tkstat.pl
+
+    * Modified code to account for different number of buttons in multi-user 
+      mode.
+
+--------------------------------------------------------------------------------
+November 9, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.24.5 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 5835 Fixed: For a file group with no version (for use in S4PA), the
+   bug caused the version to be '000' when the PDR was written. The fix added a
+   test for checking whether a file group version was defined before deciding
+   the format for file group version.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Fixes for Bug 5835 in handling file group version format. Added a test to
+    check whether a version is defined.
+
+--------------------------------------------------------------------------------
+November 9, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.24.4 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 5153 Fixed: Proper Handling of Regex/Non-Regex Work Order Types - 
+      Fixed stationmaster.pl to properly handle mixed regex and non-regex 
+      commands hashes.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Fixes for Bug 5189 in handling string type data versions. The 
+      S4P::FileGroup::data_version() function was recoded to handle both string 
+      data versions as well as legacy integer data versions (padded with zeros) 
+      via the environment variable S4P_LEGACY_DATAVERSION. If set, data versions
+      are handled as integers padded with zeros (%03d) if all numeric, as 
+      strings otherwise. If S4P_LEGACY_DATAVERSION is not set, data versions 
+      are assumed to be strings by default or, if a format specifier is passed 
+      in, according to that format. 
+
+stationmaster.pl
+
+    * Bug fix for 5153: modified to check for exact matches in looking up 
+      commands before going to the regex checking.
+
+--------------------------------------------------------------------------------
+October 9, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.24.3 Release Notes
+
+1.1 Functional Changes
+
+   1.  Bug 5036 Fixed: Support For String Type Data Versions - A number of 
+       fixes and modifications were made so that string type data versions can 
+       be fully supported in S4PM. This fix required changes to both S4P and 
+       S4PM (see Changes under S4PM for the S4PM-specific changes).
+
+1.2 Detailed File Changes
+
+S4P::PDR.pm
+
+    * For Bug 5036, modified function add_file_group() so that when setting the 
+      data version, it passes in a string format specifier (%s) unless the 
+      version is purely numeric.
+    * For Bug 5036, modified function add_granule() so that when setting the 
+      data version, it passes in a string format specifier (%s) unless the 
+      version is purely numeric.
+
+--------------------------------------------------------------------------------
+September 26, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.24.1 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 4937 Fixed: Made Dependency on S4P::EchoSearch optional - A change
+      was made so that the SOAP::Lite module isn't required unless
+      S4P::EchoSearch is actually invoked (it isn't in typical S4PM
+      installations). This was accomplished by making the function that
+      requires the SOAP module, S4P::EchoSearch, itself optional. This fix 
+      required changes to both S4P and S4PM (see Changes under S4PM for the 
+      S4PM-specific changes).
+
+1.2 Detailed File Changes
+
+EchoSearch.pm
+
+    * Moved the block of code that calculates the granule size outside ECHO 
+      search iterator.
+    * Removed the statements that appended a black spatial element when a 
+      bounding box is not specified as a search parameter. 
+
+--------------------------------------------------------------------------------
+September 18, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.24.0 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 4190 Fixed: Terminate jobs using SIGTERM: Added the ability to send
+      SIGTERM instead of SIGKILL to terminate jobs, if the S4P_KILL_TERM
+      environment variable is set to non-zero.
+
+   2. Bug 4363 Fixed: Write Signal File When Station Stops Due to Max Failures -
+      Stationmaster will now write a file MAX_FAILURES_REACHED in the station
+      directory when station processing ceases due to the max number of failures
+      reached. This is designed to help Nagios monitor it.
+
+   3. Bug 4505 Fixed: Redundant STOP Work Orders in Multi-User Mode - There was
+      a bug whereby STOP work orders were placed in stations already containing
+      such work orders causing the station to immediately shutdown after being
+      started. This has been fixed.
+
+   4. Bug 4571 Fixed: Prevents duplicate stationmasters from running - Code has
+      been added to prevent (in most cases) duplicate stationmasters from
+      running in a station due to inadvertent removal of the station.lock file.
+
+   5. Automatic Restart - Stations can be configured to automatically restart
+      failed jobs of a given type. Stationmaster first runs a "scout" job to see
+      if the coast is clear, and if that is successful, restarts all the rest of
+      that type. This feature is turned on by setting %cfg_auto_restart =
+      ( $job_type => {'interval' => $restart_interval} ); Interval is in
+      seconds, but should be set to something long, like 3600 (one hour).
+
+1.2 Detailed File Changes
+
+S4P.pm
+
+    * Fix for Bug 4505. Added code to check to see if the station was already 
+      stopped before dropping a new STOP work order in.
+    * Fix for Bug 4190. Added the ability to send SIGTERM instead of SIGKILL to 
+      terminate jobs, if the S4P_KILL_TERM environment variable is set to 
+      non-zero. 
+
+stationmaster.pl
+
+    * Added Auto Restart capability:  %cfg_auto_restart configuration variable 
+      and restart_failed_jobs() function and descendant functions.
+    * Fix for Bug 4363.  Stationmaster will now write a file 
+      MAX_FAILURES_REACHED in the station directory when station processing 
+      ceases due to the max number of failures reached. 
+    * Fix for Bug 4571:  Code has been added to prevent (in most cases) 
+      duplicate stationmasters from running in a station due to inadvertant 
+      removal of the station.lock file.
+
+--------------------------------------------------------------------------------
+April 24, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.21.0 Release Notes
+
+1.1 Functional Changes
+
+   1. Additional Enhancements for Multi-User Mode Support - Additional work was 
+      done to enable S4PM to work with individual user accounts.
+
+   2. Enhanced Mechanism For Stopping Stations - The "Stop" and "Stop Now" 
+      functionalities (available via the Tkstat Monitor when you right-click on 
+      a station) have been merged into a single "Stop" function that provides 
+      the responsiveness of the previous "Stop Now" and the safety of the 
+      previous "Stop". To use, see the $cfg_stop_interval parameter in the 
+      man page for stationmaster.pl.
+
+1.2 Detailed File Changes
+
+s4pstart.ksh
+
+    * As part of Bug 1003, modified script to support the -u <umask> option 
+      and, if set, pass the value of that option onto stationmaster.pl. It 
+      later turned out that this change wasn't needed for Bug 1003, but the 
+      change has been left in.
+
+stationmaster.pl
+
+    * Added $cfg_stop_interval to check for DO.STOP.NOW.wo work orders, in 
+      order to obviate the need for the kill -9 approach to stopping 
+      Stationmasters before the next polling interval.
+
+--------------------------------------------------------------------------------
+March 27, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.20.0 Release Notes
+
+1.1 Functional Changes
+
+   1. A fix was made  so that complext work order suffixes are handled properly 
+      when sending downstream.
+
+1.2 Detailed File Changes
+
+send_downstream.pl
+
+    * This is in the S4P package. Changed logic for sending logs downstream. It
+      should now properly handle complex output work order suffixes that include
+      the .log suffix, such as {PAN,PDR,pcf,wo}
+
+--------------------------------------------------------------------------------
+February 27, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.19.0 Release Notes
+
+1.1 Functional Changes
+
+   1. Bug 853 Fixed: MetFile.pm Failed To Match Core Metadata Attribute in HDF -
+      A change to HDF ncdump modified the extracted header from CoreMetadata_0
+      to CoreMetadata.0 and a code change was needed to support both.
+
+   2. Bug 866 Fixed: Change to xml2odl.pl - A fix was made to QC.pm to support
+      S4PA which also uses S4P as its core.
+
+   3. Bug 884 Fixed: Bug in s4p_stat.pl in Reading station.list File - Made a
+      fix so that it properly detects and uses absolute paths if present.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Fix for Bug 655. Added verify_checksums method, which calls
+      S4P::FileSpec::verify_checksum().
+
+S4P::FileSpec.pm
+
+    * Fix for Bug 655. Added verify_checksum method, which computes checksum of
+      the file and compares against the value in the FILE_SPEC.
+
+S4P::MetFile.pm
+
+    * Fix for Bug 853. Modified matching pattern to something that will match
+      in the HDF file, for example, CoreMetadata_0 as well as CoreMetadata.0
+      and coremetadata.
+S4P::PDR.pm
+
+    * Fix for Bug 655. Added verify_checksums method, which calls
+      S4P::FileGroup::verify_checksums().
+
+S4P::QC.pm
+
+    * Fix made for Bug 866 so that it writes out ODL instead of XML.
+
+s4p_stat.pl
+
+    * Fix for Bug 884. Code will now detect whether or not the station.list
+      file contains absolute pathnames and, if so, use them properly.
+
+--------------------------------------------------------------------------------
+February 16, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.18.2 Release Notes
+
+1.1 Function Changes
+
+   1. Bug 655 Fixed: Add cksum checking to acquire data - Verify checksums 
+      after transfer/symlink and fail if any fail verification.
+
+   2. Bug 853 Fixed: MetFile.pm Failed To Match Core Metadata Attribute in HDF -
+      A change to HDF ncdump modified the extracted header from CoreMetadata_0 
+      to CoreMetadata.0 and a code change was needed to support both.
+
+   3. Bug 866 Fixed: Change to xml2odl.pl - A fix was made to QC.pm to support 
+      S4PA which also uses S4P as its core.
+
+   4. Bug 884 Fixed: Bug in s4p_stat.pl in Reading station.list File - Made a 
+      fix so that it properly detects and uses absolute paths if present.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Fix for Bug 655. Added verify_checksums method, which calls 
+      S4P::FileSpec::verify_checksum.
+
+S4P::FileSpec.pm
+
+    * Fix for Bug 655. Added verify_checksum method, which computes checksum of 
+      the file and compares against the value in the FILE_SPEC.
+
+S4P::MetFile.pm
+
+    * Fix for Bug 853. Modified matching pattern to something that will match 
+      in the HDF file, for example, CoreMetadata_0 as well as CoreMetadata.0 
+      and coremetadata.
+
+S4P::PAN.pm
+
+    * Modified to include number of files for SIPS LONGPANs.
+    * Modified to fix ground message headers for EDOS PAN/EAN.
+
+S4P::PDR.pm
+
+    * Fix for Bug 655. Added verify_checksums method, which calls 
+      S4P::FileGroup::verify_checksums.
+    * Added support for EDOS EDRs (and is_expedited method).
+
+S4P::QC.pm
+
+    * Fix made for Bug 866 so that it writes out ODL instead of XML.
+
+s4p_stat.pl
+
+    * Fix for Bug 884. Code will now detect whether or not the station.list 
+      file contains absolute pathnames and, if so, use them properly.
+
+--------------------------------------------------------------------------------
+February 2, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.18.1 Release Notes
+
+1.1 Function Changes
+
+   1. S4P Enhancements - A number of changes were made in S4P modules to support
+      PDRs and PANs.
+
+1.2 Detailed File Changes
+
+S4P::FileSpec.pm
+
+    * Added 'status' variable to store the FileSpec status and a status() method
+      to set or retrieve FileSpec status.
+
+S4P::PAN.pm
+
+    * Fixed the ground message header for EDOS PANs.
+
+S4P::PDR.pm
+
+    * Added 'status' variable to store the PDR status and a status() method to 
+      set or retrieve PDR status. Status is deduced based on the status of 
+      FileGroups in the PDR.
+    * Added 'attempt' variable to store the numer of attempts in processing a 
+      PDR and attempt() method to set/retrieve it.
+
+--------------------------------------------------------------------------------
+January 30, 2007
+--------------------------------------------------------------------------------
+
+1. S4P 5.18.0 Release Notes
+
+1.1 Functional Changes
+
+   1.  Bug 422 Fixed: Enhance PDR validation - Traps malformed FILE_GROUPs with
+       no FILE_SPECs or END_OBJECT
+
+   2.  Bug 563 Fixed: Redefinition of copy subroutine in S4P - One line was
+       changed in S4P::FileGroup.pm
+
+   3.  Bug 564 Fixed: Errors from MetFile.pm called in s4pm_export.pl - Added
+       "no warnings 'uninitialized'"
+
+   4.  Extensions in S4P::FileGroup and S4P::FileSpec to Support Browse Images -
+       Several modifications were made to FileGroup.pm and FileSpec.pm to
+       handle Browse image files needed for AIRS.
+
+   5.  Run Tokens - The ability for multiple stations to "share" a set of
+       processors has been added. This is done through a tokenmaster station,
+       running the new script s4p_token.pl, and a %cfg_token configuration
+       variable (keyed on job_type) in the various stations sharing the tokens.
+       Modifications have been made to S4P.pm and stationmaster.pl to spawn
+       jobs but not begin actual execution until granted a token from the
+       tokenmaster station. Once the job succeeds or fails, the token is
+       released.
+
+1.2 Detailed File Changes
+
+S4P.pm 
+
+    * Added request_token(), grant_token() and release_token() to support
+      sharing of processors by multiple stations.
+
+S4P::FileGroup.pm
+
+    * Added new method browse_file() to return the pathname of a Browse file in
+      the FILE_GROUP. 
+    * For Bug 563, changed "use File::Copy;" to "use File::Copy();" to avoid
+      conflict with FileGroup::copy(). 
+
+S4P::FileSpec.pm
+
+    * Modified guess_file_type() method to add in the .jpg and .jpeg file name
+      extensions for a Browse file.
+
+S4P::MetFile.pm
+
+    * Fixed Bug 564 by adding 'no warnings "uninitialized"' to the top of the
+      file. Parsing should still work as designed.
+
+S4P::PDR.pm
+
+    * For Bug 422, added traps for malformed FILE_GROUPs with no FILE_SPECs or
+      END_OBJECT.
+
+s4p_token.pl
+
+    * New script to manage tokens in a tokenmaster station. It responds to
+      requests for tokens by renaming them. It then polls for the existence of
+      the token file, and when gone, exits 0. If it times out with the file
+      still in existence, it exits 2.
+
+stationmaster.pl
+
+    * Added code to request a token if $cfg_token{$job_type} is set in the
+      station.cfg. Code also release token when job succeeds or fails.
+
+--------------------------------------------------------------------------------
+December 28, 2006
+--------------------------------------------------------------------------------
+
+1. S4P 5.17.1 Release Notes
+
+1.1 Functional Changes
+
+   1. Extensions in S4P::FileGroup and S4P::FileSpec to Support Browse Images - Several modifications were made to FileGroup.pm and FileSpec.pm to handle Browse image files needed for AIRS.
+
+1.2 Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Added new method browse_file() to return the pathname of a Browse file 
+      in the FILE_GROUP.
+
+S4P::FileSpec.pm
+
+    * Modified guess_file_type() method to add in the .jpg and .jpeg file name 
+      extensions for a Browse file.
+
+--------------------------------------------------------------------------------
+December 19, 2006
+--------------------------------------------------------------------------------
+
+1. S4P 5.17.0 Release Notes
+
+1.1 Functional Changes
+
+   1. Improved Error Handling in ODL Parser - Implemented additional error 
+      handling to detect unbalanced ODL trees.
+
+   2. Case Insensitive Search of ODL Tree - Implemented case insensitive search 
+      of ODL trees by setting a flag.
+
+   3. EDOS PDR and PAN handling - Implemented PDRs and PANs with binary headers 
+      to support EDOS ingest to S4PA
+
+1.2 Detailed File Changes
+
+S4P::FileGroup
+
+    * Implemented data_files() to return non-metadata files.
+
+S4P::OdlBlock
+
+    * Implemented case insensitive search (CASE_INSENSITVE argument should be 
+      set to 1 in S4P::OdlTree:search()).
+
+S4P::OdlGroup
+
+    * Implemented getNodeType() to return the node type (GROUP).
+
+S4P::OdlObject
+
+    * Implemented getNodeType() to return the node type (GROUP).
+
+S4P::OdlTree
+
+    * Implemented case insensitive search (CASE_INSENSITVE argument should be 
+      set to 1 in S4P::OdlTree:search()).
+
+S4P::PAN
+
+    * Functions are provided to extract fields from an EDOS-style PDR to build 
+      an EDOS-style PAN. If the PAN description is "SUCCESSFUL", the file 
+      transfer disposition will be marked successful (0); if it contains 
+      CHECKSUM, the file disposition will be set to Checksum Mismatch (3); if 
+      METADATA, it will be set to Invalid PDS/EDS Construction Record Data (9); 
+      for all other values, it will be set to File Unreadable (8).
+
+S4P::PDR
+
+    * If an input file contains an EDOS-style PDR (begins with \x09\x00), the 
+      binary Ground Message Header is stripped from the front and stored as 
+      though it were a hex string for a new field called GROUNDMSGHDR. If a PDR 
+      is written that has a GROUNDMSGHDR, it is written as a SIPS-style PDR with
+      this extra field which is recognized in subsequent reads. Functions are 
+      provided to fetch and store the value, and test if it is null.
+
+--------------------------------------------------------------------------------
+December 4, 2006
+--------------------------------------------------------------------------------
+
+1. S4P 5.16.1 Release Notes
+
+Note that as of this release, the changes for S4P and for S4PM will be 
+separated. These are changes for S4P only. For S4PM release notes, see
+Changes file there.
+
+1.1 Functional Changes
+
+   1.  Bug 356 Fixed: PCF Multi-File Granule Support
+
+1.2 Detailed File Changes
+
+S4P::PCF.pm
+
+    * Added a method to obtain granules from a PCF lun, hashed on the 
+      corresponding metadata files. This supports the multi-file granule 
+      changes to s4pm_run_algorithm.pl (Bug 356).
+
+--------------------------------------------------------------------------------
+October 31, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.16.0 Release Notes
+
+1.1 Functional Changes
+
+   1.  Auto Acquire/Request Turbo Mode - Turbo mode (-t) causes Auto Request to 
+       skip over data gaps faster than the fixed X rate would ordinarily allow.
+
+   2.  Fill Hole Tool Update - A string can now be configured so that the Fill 
+       Hole ordering tool includes all the input data types, not just those not 
+       assigned to the INPUT disk pool. This is done via the new 
+       include_all_input attribute in the %ordering_tool_parms hash (normally 
+       set in the Stringmaker String configuration file).
+
+   3.  Remove Job Failsafe - The remove_job.pl script checks to see if a 
+       station directory is on the chopping block and errors out if so.
+
+   4.  Stage For Pickup Location Fixed - The Stage For Pickup station (used 
+       primarily for DME) was hardwired to be under $HOME. The proper directory 
+       location is the directory set by the $global_root parameter in the 
+       Stringmaker Global configuration file which does default to $HOME.
+
+   5.  Custom Find Data Support - Support was added to Find Data that allows 
+       custom commands or scripts to be run for particular input LUNs. Custom 
+       find is set up via the %custom_find hash in the 
+       s4pm_stringmaker_algorithm.cfg file. When invoked, Find Data relies on 
+       the custom script to return the pathname of a data file found. To 
+       support the custom script, a parameter file is created containing the 
+       values of parameters normally used by Find Data itself (e.g. data 
+       directory, the processing start and stop time, the input data's currency 
+       and boundary). It is up to the custom script to use this parameter file 
+       (or not) and whatever other means it has at its disposal to locate an 
+       input file. As a reference implementation, the script 
+       s4pm_find_by_coverage.pl is included. This script examines the metadata 
+       files in the data directory for the first one whose data coverage 
+       overlays the processing period. If such a metadata file is found, it 
+       returns the full pathname of the data file; otherwise it returns nothing.
+       See Stringmaker Algorithm configuration file man page for more details 
+       on this new option.
+
+   6.  Simplified String Configurations - For simple S4PM strings, the directory
+       structure has been made even more simple. By setting only the $s4pm_root 
+       parameter (and leaving out $ingest_root, $ecs_root, $global_root, and 
+       even $instance), the entire string is built under a single root 
+       directory. Other simplications were made too: The $ingest_root paramter 
+       now specifies where the PAN, PDR, and DATA directories go. To have the 
+       DATA directory somewhere else, use $data_root. $data_root can be used in 
+       conjunction with $ingest_root or not. The $instance parameter is now 
+       optional also.
+
+1.2 Detailed File Changes
+
+S4P.pm
+
+    * Modified remove_job() to check for presence of a station.cfg file before 
+      removing, to eliminate inadvertant station cleanups.
+
+S4P::TimeTools.pm
+
+    * Modified S4P::TimeTools::CCSDSa_DateCompare so that it truncates off any 
+      fractional seconds before doing the comparison. Without this, for example,
+      time strings 2006-12-14T04:02:00Z and 2006-12-14T04:02:00.000000Z were 
+      not seen as equal.
+
+S4PMDM.pm
+
+    * This module supports the S4PM Data Mining Edition. Added $data_root 
+      parameter so that it appears in the work order that initiates the creation
+      of a new user string.
+
+s4pm_auto_request.pl
+
+    * Added turbo mode (-t) to skip over data gaps faster than the fixed X rate 
+      would ordinarily allow.
+    * Fixed a logic error encountered when there is a data gap.
+    * Modified to truncate fractional seconds in begin time to make the bins 
+      come out evenly.
+
+s4pm_find_data.cfg
+
+    * Added documentation on the new %cfg_custom_find hash. See 
+      s4pm_find_data.pl for details.
+
+s4pm_find_data.pl
+
+    * Added a new optional parameter to the Find Data configuration file: 
+      %cfg_custom_find, that allows custom commands or scripts to be associated 
+      with particular LUNs. The algorithm in the custom script replaces the 
+      default methods used in s4pm_find_data.pl. To implement this, the new 
+      run_custom_find() subroutine was added and modifications were put into 
+      get_data_pathname() as well as minor changes in other areas.
+
+s4pm_find_by_coverage.pl
+
+    * Reference implementation of the new custom find capability in Find Data. 
+      This custom find looks at the coverage time in the metadata to determine 
+      if the data fully covers the processing period. It returns the path for 
+      the first one that passes the coverage test.
+
+s4pm_run_test.pl
+
+    * This script, part of the S4PM_TEST package, was updated to accommodate 
+      the simpler string configuration available via Stringmaker in this 
+      release.
+
+s4pm_stringmaker.pl
+
+    * Removed references to $ENV{'HOME'} and replaced with $global_dir, a 
+      parameter set in the Stringmaker Derived configuration file. This change 
+      only affects DME.
+    * Modified subroutine update_configurator() so that it uses 
+      $stringmaker_root rather than $stringmakerdir as the location of the 
+      s4pm_configurator.cfg file.
+    * Added support for reading in the optional %custom_find parameter from the 
+      Stringmaker Algorithm configuration files and using it to build up a 
+      %all_custom_find hash to be used by s4pm_stringmaker_derived.cfg.
+
+s4pm_stringmaker_algorithm.cfg
+
+    * Added documentation and examples for the new %custom_find option that 
+      allows custom scripts or commands to be run for inputs of a particular 
+      LUN.
+
+s4pm_stringmaker_derived.cfg
+
+    * Modified how the @fillhole_datatypes array is populated depending upon 
+      whether or not the 'include_all_input' was set in the %ordering_tool_parms
+      hash.
+    * Modified the Stage For Pickup station so that it is placed under a 
+      $globaldir and not hardwired to the user's home directory.
+    * Refactored for simplifying how various options play together. In the 
+      simplest configuration (where only $s4pm_root is set and not $ingest_root,
+      $ecs_root, or $global_root), the entire string is built under a single 
+      directory. Adding $ingest_root causes the DATA, PAN, and PDR directories 
+      to be under $ingest_root. The $instance paramter is now optional. To have 
+      PAN and PDR under $ingest_root and DATA somewhere else (as we need for 
+      ECS), the $data_root parameter needs to be set. I also added some checking
+      so that if $ecs_root is not set, links to things like the ECS acquire 
+      script and SCLI.log are not created.
+    * Changed warning message content for when $external_archive_system is set 
+      to either 's4pa' or 'both', yet the %s4pa_data_map hasn't been defined. 
+      The warning had been misworded slightly.
+    * Added support for the new %all_custom_find hash that s4pm_stringmaker.pl 
+      provides to add an optional %cfg_custom_command hash to the 
+      s4pm_find_data.cfg file in the Find Data station.
+
+s4pm_stringmaker_host.cfg
+
+    * Modified documentation on the $ingest_root parameter and how it works 
+      (see 3rd item under s4pm_stringmaker_derived.cfg).
+
+s4pm_stringmaker_host.template
+
+    * Updated to stay in sync with changes in the s4pm_stringmaker_host.cfg 
+      file. This template file is part of the S4PM_TEST package.
+
+s4pm_stringmaker_string.cfg
+
+    * Modified the description of the %ordering_tool_parms hash to include the 
+      new 'include_all_input' attribute.
+    * Modified documentation on the $instance paramter since it is now optional.
+
+s4pm_stringmaker_string.template
+
+    * Updated to stay in sync with changes in the s4pm_stringmaker_string.cfg 
+      file. This template file is part of the S4PM_TEST package.
+
+stringWO.cfg
+
+    * This file is part of the S4PM Data Mining Edition. Added $data_root_base 
+      path information used to build string work order for Stringmaker.
+
+--------------------------------------------------------------------------------
+September 28, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.15.2 Release Notes
+
+1.1 New Features
+
+   1. Fix to Poll PDR station to handle remote directories containing a 
+      large number of files.
+  
+1.2 Detailed File Changes
+
+s4pm_remote_polling_pdr.pl
+
+    * Fixed bug that caused a null return when attempting to get back a list of
+      files in the remote directory via ftp. Modified code so that through ftp,       a cd into the relevant directory is performed first before querying
+      for the list of files it contains. Also, rather than querying via 'ls', 
+      'dir' is used instead. The results are then parsed. 
+
+--------------------------------------------------------------------------------
+September 26, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.15.1 Release Notes
+
+1.1 New Features
+
+   1. Development of S4PM Moved into CVS - All development of S4PM has been 
+      transitioned from SCCS to CVS.
+
+   2.  PAN Interface with Providers - Added ability to return SUCCESSFUL PANs 
+       back to data providers.
+
+1.2 Detailed File Changes
+
+All Source Files
+
+    * CVS tags were inserted into the tops of all source files.
+
+s4pm_acquire_data.pl
+
+    * Clean up of the prolog documentation.
+    * Added -P option to return SUCCESSFUL PANs to the URL given in the 
+      ORIGINATING_SYSTEM attribute of the PDR work order
+
+s4pm_remote_polling_pdr.pl
+
+    * Added -P <URL> option to embed a PAN destination in the ORIGINATING_SYSTEM
+      attribute of the output PDR work orders
+
+s4pm_run_algorithm.pl
+
+    * Added a new option, -a node_name, to explicitly set the value of the node 
+      name in PDR work orders going from Run Algorithm to the Export station. 
+      The default is to use S4P::PDR::gethost().
+
+s4pm_stringmaker_host.cfg
+
+    * Modified comments on the $host_alias parameter to include the fact that 
+      the alias is applied to the PDRs generated by the Run Algorithm station 
+      in the NODE_NAME attribute as well as to the PDRs that Acquire Data sees.
+
+s4pm_stringmaker_derived.cfg
+
+    * Modified the Run Algorithm section so that if $host_alias is defined, the 
+      new -a option is included when s4pm_run_algorithm.pl is invoked.
+    * In Acquire Data station, configured the %cfg_commands hash for two work 
+      order types only: 'ACQUIRE_DATA' and 'DN.*'. The previous 'D*.{PDR,wo}' 
+      was removed in favor of the 'DN.*'.
+    * In Poll PDR, modified %cfg_commands so that if 'pan_url' is set in the 
+      %pdr_polling_parms, the call to s4pm_remote_polling_pdr.pl includes the 
+      -P option for making PANs. Also, in this case, the work order generated 
+      is POLL_ACQUIRE_DATA rather than ACQUIRE_DATA which goes to the Acquire 
+      Data station. Also, modified the Acquire Data station confguration so 
+      that the POLL_ACQUIRE_DATA work order is set in the %cfg_commands hash 
+      and includes the -P option on the s4pm_acquire_data.pl script.
+
+s4pm_stringmaker_string.cfg
+
+    * Added a new attribute to the %pdr_polling_parms hash, pan_url, which if 
+      set enables PAN generation by the Poll PDR station. It is actually the 
+      Acquire Data station that sends the PAN to the data provider if data are 
+      successfully acquired.
+
+--------------------------------------------------------------------------------
+August 29, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.15.0 Release Notes
+
+1.1. New Features
+
+   1. Sweep Data Fix - A fix was made so that Sweep Data work orders containing 
+      URLs (http or ftp) don't fail. This only affected strings getting data 
+      from S4PA systems.
+
+   2. Better Support For Simple Installations - There is now better support for 
+      installations of S4PM on machines that are not automounting home 
+      directories. In Stringmaker, the setting of $global_root is now optional 
+      and defaults it to $s4pm_root. Further, if $ecs_root and $ingest_root 
+      parameters are omitted as well, the entire installation will be contained 
+      under the single $s4pm_root directory.
+
+   3. Updated TEST Package - The S4PM_TEST package was updated to take advantage
+      of the simpler, single root directory installation capability.
+
+   4. Support For Both Input From and Export To S4PA - In the previous release, 
+      the %s4pa_data_map was used to define where S4PA input data were located 
+      (needed by the Compose Request Tool). This hash has now been extended to 
+      also define where products destined to be exported to an S4PA go.
+
+   5. Full Incorporation of S4PM-DME - This is the first release that fully 
+      incorporates and includes the Data Mining Edition of S4PM or S4PM-DME. 
+      Documentation on setting up and configuring DME, however, is still 
+      lacking. In addition to the four S4PM packages already included (S4PM, 
+      S4P, S4PM_CFG, S4PM_TEST), there are four new packages for DME: S4PMDM, 
+      S4PMDM_CFG, S4PMDM_CGI, and S4PMDM_HTML).
+
+   6. Full Support for Getting Data via PDR - This release has been tested 
+      successfully with the MODIS LAADS system, an external provider of data 
+      via PDR. The station that polls for the PDRs is the Poll PDR station. 
+      Testing has been successful in both the forward and reprocessing modes 
+      (that is, ordering via the Compose Data Request tool).
+
+1.2. Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Replaced the Net::SSH2 with system sftp call in sub ssh_get. This change 
+      will greatly improve the performance of sftp download and simplify the 
+      ssh key exchange issue. User should either setup sftp alias or 
+      ~/.ssh/config for special ssh ProxyCommand to get through the firewall if 
+      necessary.
+
+S4P::MetFile.pm
+
+    * Change to xml2odl() so that it uses the embedded ODL object if available 
+      for making the ODL file (bug 68).
+
+s4p_remote_polling_pdr.pl
+
+    * Switched to using command line sftp from Net::SSH2.
+    * Replaced the command line switch, "-h", with "-r"; "-h" is now used to 
+      print out comand syntax.
+    * Added an additional switch, "-f", so that command parameters can be 
+      specified in a configuration file. The configuration file can also 
+      include an additional item, %cfg_data_version, for use in validating 
+      support for datasets/versions in a PDR.
+
+S4PM::AlgorithmIO.pm
+
+    * In subroutine data_version(), dropped the formatting of the data version 
+      to exactly three characters.
+
+S4PM::QC.pm
+
+    * Fixed call to S4P::logger. It had been S4P::looger.
+
+s4pm_acquire_data.pl
+
+    * Added the -w option for "Winnowing" mode. This causes Acquire Data to 
+      discard FILE_GROUPs from PDRs for datatypes that are not found in the 
+      allocation database. (This will produce an INFO message, though.)
+    * Added logic to detect when remote machine is on local network and bypass 
+      firewall settings. Also removed s4pm user's settings of environment 
+      variable, and added settings to startup for s4pm_tk_compose_request.pl. 
+      However, for next release, we should move the same logic from 
+      s4pm_acquire_data.pl into the PDR module so that it can be used by 
+      s4pm_tk_compose_request.pl as well (Bug 106).
+    * Added fix so that an appropriate UR is assigned for files coming in via 
+      PDR via the Poll PDR station.
+
+s4pm_run_test.pl
+
+    * This is part of the S4PM_TEST package. Updated to take advantage of the 
+      simpler installation support that allows an entire string to be under one 
+      root directory.
+
+s4pm_select_data.pl
+
+    * In subroutine validate_work_order(), removed the contraint on data type 
+      versions that they be three characters in length.
+
+s4pm_select_data_handles.pl
+
+    * In subroutine validate_work_order(), removed the contraint on data type 
+      versions that they be three characters in length.
+
+s4pm_stringmaker.pl
+
+    * Fix to sub update_configurator() to use the parameter $stringmakerdir 
+      rather than $stringmaker_root for finding the Stringmaker String 
+      configuration file. Without this fix, the parameter $stringmaker_root 
+      must be set. With, it can be inferred.
+
+s4pm_stringmaker_datatypes.cfg
+
+    * Documented the extended use of the %s4pa_data_map parameter to define 
+      destination non-ECS archives as well as input archives.
+
+s4pm_stringmaker_datatypes.template
+
+    * This is part of the S4PM_TEST package. It was synced up with the latest 
+      s4pm_stringmaker_datatypes.cfg file.
+
+s4pm_stringmaker_derived.cfg
+
+    * Fix in the construction of the s4pm_export.cfg file to support output to 
+      multiple archives.
+    * Added appropriate handling for sites not running ECS. The $ecs_root and 
+      $ingest_root are now handled with reasonable defaults.
+    * Modified so that if the $global_root parameter is not set, it defaults to 
+      $s4pm_root and this results in the complete S4PM string being under one 
+      root directory, namely $s4pm_root, rather than split with some stations 
+      being under the user's home directory. This is apprpropriate for sites 
+      only deploying a single string on a box.
+    * Enabled subscription request interface for DME in Acquire Data station. 
+      Note that the interface itself for S4PA has not yet been written.
+    * Added fix so that production summary data types would be omitted from 
+      being included in QC checks and from the generated QC.cfg file.
+    * Include the -w option for running s4pm_acquire_data.pl when PDR polling 
+      is used.
+    * Fixes to the configuration of the Poll PDR station.
+    * Fixed a problem with algorithms generating production summaries not 
+      getting the needed -f option on the s4pm_run_algorithm.pl command line.
+    * To handle the extended use of the %s4pa_data_map hash, the building of 
+      the s4pm_export.cfg file in the Export station was heavily modified as 
+      well as cleaned up. Modifications were also made in the Receive PAN 
+      station so that there was an entry for each destination configured in 
+      the Export station.
+    * Modified command line call to s4p_remote_polling_pdr.pl in the Poll PDR 
+      station. The -h option was changed to -r reflecting a change in the 
+      script's interface.
+
+s4pm_stringmaker_global.cfg
+
+    * Cleaned up documentation on the $stringmaker_root parameter.
+
+s4pm_stringmaker_global.template
+
+    * This is part of the S4PM_TEST package. It was synced up with the latest 
+      s4pm_stringmaker_global.cfg file.
+
+s4pm_stringmaker_host.cfg
+
+    * Cleaned up documentation on $toolkit_root and $ecs_root parameters. 
+      Documented that the $ecs_root and $ingest_root parameters are now 
+      optional and appropriate defaults for sites not running ECS.
+
+s4pm_stringmaker_host.template
+
+    * This is part of the S4PM_TEST package. It was synced up with the latest 
+      s4pm_stringmaker_host.cfg file.
+
+s4pm_stringmaker_string.template
+
+    * This is part of the S4PM_TEST package. It was synced up with the latest 
+      s4pm_stringmaker_string.cfg file.
+
+s4pm_sweep_data.pl
+
+    * Modified code that attempts to determine the data type from the .ur file. 
+      The code now tries first to get data type from .ur file, but if that 
+      fails, it gets it from the file name itself.
+    * Also, modified sub compare_urs() so that it works for URs that are FTP or 
+      HTTP URLs as well as ECS-style URs. Also, if the UR in a .ur file fails 
+      parsing, rather than the script failing, it simply notes that the 
+      accompanying request or acquire stub file won't get cleaned out.
+
+s4pm_sweep_data_handles.pl
+
+    * Modified sub compare_urs() so that it works for URs that are FTP or HTTP 
+      URLs as well as ECS-style URs. Also, if the UR in a .ur file fails 
+      parsing, rather than the script failing, it simply notes that the 
+      accompanying request or acquire stub file won't get cleaned out.
+
+s4pm_tk_admin.pl
+
+    * Added oldlist.ext to the skip list in subroutine skip() since this file 
+      is produced by the Poll PDR station.
+
+stationmaster.pl
+
+    * Stationmaster outputs to the log file the command being run as set in the 
+      %cfg_commands hash in the station.cfg file for the station. But when the 
+      work order type for a command included wildcard characters (e.g. '*') for 
+      the hash key, the echoing of the command to the log file did not work. 
+      This was fixed so that the command is written to the log file even for 
+      work order types with wildcard characters.
+
+--------------------------------------------------------------------------------
+July 25, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.14.0 Release Notes
+
+1.1. New Features
+
+   1. Stationmaster Enhancements -
+
+         a. A station-specific custom sort function can now be specified. See 
+            stationmaster.pl man page for details.
+         b. The virtual job feature now includes $cfg_virtual_feedback, which 
+            will take into account the number of failed jobs of a given type 
+            before spinning off a new one. See stationmaster.pl man page for 
+            details on this parameter and virtual jobs in general. 
+
+   2. Acquire Data - This new station that handles the acquiring of data from 
+      S4PA or S4PA-like sources is now fully functional.
+
+         a. Now Accepts DNs Instead of DANs - In tandem with S4PA changes, 
+            input work orders to the Acquire Data station have been changed 
+            from DAN.* to D*.{PDR,wo}. That is, it accepts work orders with 
+            either the PDR or wo file name extensions. Work orders from S4PA 
+            have the PDR extension; work orders from LAADS have the wo 
+            extension.
+         b. Can acquire data from LAADS FTP site. 
+
+   3. New Poll PDR Station - To support bringing in data from LAADS (the MODIS 
+      distribution system), a new Poll PDR station has been created to poll a 
+      remote site for PDRs.
+
+   4. Nascent File Handle Functionality - Infrastructure code has been added to 
+      eventually (in a later release) support file handles for data. When fully 
+      functional, this will allow data files to retain their original file 
+      names since S4PM will be dealing only with file handles instead. File 
+      handles will be the *.ur files overloaded with the full pathnames of the 
+      data and metadata files with which they are associated. This functionality
+      is not yet complete and should not be used. New scripts:         
+      s4pm_find_data_handles.pl, s4pm_sweep_data_handles.pl, 
+      s4pm_select_data_handles.pl, and s4pm_preselect_data_handles.pl have been 
+      added to the baseline temporarily to specifically work with file handles 
+      (this guarantees backward compatibility until the new code is fully 
+      tested). In a later release, the functionality in these new scripts will 
+      be merged into the original scripts; at that point, the scripts will 
+      fully support strings employing file handles and those that don't.
+
+   5. New Auto Acquire Stations - To handle automated acquires of data from 
+      S4PA systems, there are now Auto Acquire stations that feed requests to 
+      the Acquire Data station; these are analogous to the Auto Request station 
+      that feeds requests to the Request Data station. One is created for each 
+      S4PA system feeding data to the S4PM string (in addition to any Auto 
+      Request station to handle data from ECS).
+
+1.1. Detailed File Changes
+
+S4P::FileSpec.pm
+
+    * Added ability to parse attribute 'pathname' in new method
+
+S4P::MetFile.pm
+
+    * Added hdfeos2odl to extract metadata from HDF-EOS using ncdump
+
+S4PM.pm
+
+    * Added a number of functions to encapsulate polling of files and accesses 
+      to metadata and URs . These functions support both the old-style URs as 
+      well as the new-style URs functioning as file handles. These functions 
+      were added:
+
+          o
+
+            @files = get_filenames_from_handle($handle);
+
+            This function takes a data file or a file handle as input and 
+            returns the corresponding full pathnames of the data files. If the 
+            handle is the old-style UR file, the function simply returns the 
+            name passed to it with the .ur truncated off. If the handle is a 
+            true handle file, the function returns a list comprised of lines 2 
+            through the next to the last line (the last line is the metadata 
+            file). If $handle is a file, it simply returns back the file; if 
+            it's a directory correpsonding to a multi-file granule, it returns 
+            the list of data files within.
+
+          o $metadata = S4PM::get_metadata_from_handle($handle);
+
+            This function takes a data file or a file handle and returns the 
+            full pathname of the metadata file corresponding to the data file 
+            or handle file passed in.
+
+          o $ur = S4PM::get_ur_from_handle($handle);
+
+            This function returns the UR from the file handle, which is assumed 
+            to be the first line in the handle file.
+
+          o @handles = S4PM::get_matching_handles($dir, $pattern);
+
+            Given a directory and file pattern, this function returns an array 
+            of matching handle files, new or old-style.
+
+          o $count = S4PM::matching_handle_count($dir, $pattern);
+
+            Given a directory and file pattern, this function returns the number
+            of handle files matching the pattern.
+
+          o $res = S4PM::is_multi_file_granule($handle);
+
+            Returns 1 if the granule associated with the data file or handle 
+            passed in contains more than 1 data file; 0 otherwise.
+
+          o $size = S4PM::get_granule_size($handle);
+
+            This function takes a data file or file handle and returns the 
+            total size in bytes of all associated data files.
+
+          o S4PM::touch_granule($handle);
+
+            Given a handle, this function simply executes a 'touch' on all 
+            components of the granule including the file handle itself. It 
+            works with both old- and new-style file handles. There is no return 
+            value.
+
+S4PM::Algorithm.pm
+
+    * Added a companion function to trigger_data() that returns the trigger 
+      data type's version: trigger_version().
+
+S4PM::DataRequest.pm
+
+    * Fixed symlink_metfiles() so that it doesn't complain about failing to 
+      symlink if the source directory isn't there in the first place. For AIRS 
+      L0, several App ID data types are produced only rarely and therefore, 
+      S4PA won't have made directories for them.
+
+s4pm_acquire_data.pl
+
+    * Extracts metadata from HDF-EOS file if no metadata file is available
+    * Can work with firewalls now.
+    * Fixed S4P::perish() call to hardcode exit code instead of return code 
+      from write_file, which returns 0 on error.
+
+s4pm_find_data_handles.pl
+
+    * New file that took the original s4pm_find_data.pl script and modified it 
+      fairly significantly to deal with both old-style and new-style URs. 
+      Changed get_data_pathname() to get_handle_pathname() and modified it to 
+      deal with URs as handles rather than as just files. The get_ur() function 
+      was dropped in favor of the new S4PM::get_ur_from_handle() function. The 
+      fill_in_optional_file_groups() and fill_in_required_file_groups() 
+      functions were also modified to deal with handles appropriately, whether 
+      old- or new-style. Finally, mk_array_of_file_specs() and 
+      mk_array_of_multifile_specs() were changed somewhat to deal with handles. 
+      This flavor of Find Data is only used if $use_filehandles is set.
+
+s4pm_preselect_data_handles.pl
+
+    * New file that took the original s4pm_preselect_data.pl script and modified
+      to make use of the new S4PM polling and file handle functions. Changes 
+      were mostly in poll_for_data() and in make_patterns_hash(). This script 
+      is only used if $use_filehandles is set.
+
+s4pm_select_data_handles.pl
+
+    * New file that took the original s4pm_select_data.pl script and modified 
+      slightly to account for the new interface for 
+      S4PM::Algorithm::trigger_datatype() function. This script is only used if 
+      $use_filehandles is set.
+
+s4pm_stringmaker_derived.cfg
+
+    * In the Acquire Data station, changed configuration for input work orders 
+      such that they are named DN.* rather than DAN.* (S4PA is renaming this in 
+      tandem).
+    * Modified Acquire Data station so that there is a subdirectory named 
+      ACQUIRES symbolically linked to ../request_data/REQUESTS.
+    * Also in Acquire Data, changed interface to s4pm_tk_compose_request.pl to 
+      pass the -o ACQUIRE_DATA option and replaced REQUEST_DATA in %cfg_commands
+      with ACQUIRE_DATA to handle the new work order names generated by Compose 
+      Request.
+    * Modified to make use of the new @input_external_archive_systems and 
+      @output_external_archive_systems arrays throughout.
+    * Added the Auto Acquire stations so that there is a separate one for each 
+      S4PA archive system. The name of the FTP host is used in the name of the 
+      station. Thus, for example: Auto Request G0spp12, Auto Request G3dpp01, 
+      or Auto Request Local, etc.
+
+s4pm_stringmaker_global.cfg
+
+    * Moved the $external_archive_system parameter out of here and into the 
+      s4pm_stringmaker_string.cfg file where it makes far more sense; it can be 
+      different for different strings on the same box.
+
+s4pm_stringmaker_host.cfg
+
+    * Moved the $host parameter out of the s4pm_stringmaker_string.cfg into 
+      this file as it makes far more sense here. It doesn't, however, really 
+      matter where it is set. But this is a more fitting home.
+    * Added new parameter $host_alias to allow for an alternate name for the 
+      local machine (for machines that are dual-homed). Without this, the 
+      Acquire Data station may receive PDRs for local data, but because the PDR 
+      contains the alternate domain name, it isn't recognized as local. This 
+      leads to Acquire Data trying to FTP the data over rather than setting up 
+      symbolic links instead.
+
+s4pm_stringmaker_static.cfg
+
+    * Minor modification in the Sweep Data station so that a link to the new 
+      s4pm_sweep_data_handles.pl file is created.
+
+s4pm_stringmaker_string.cfg
+
+    * Added new %pdr_polling_parms hash to support polling of remote PDRs for 
+      ingest of data into S4PM.
+    * Moved the $host parameter out of this file and into the 
+      s4pm_stringmaker_host.cfg file as it makes far more sense there. It 
+      doesn't, however, really matter where it is set. But the other file is a 
+      more fitting home.
+    * Added the $use_filehandles parameter to turn on or off the use of file 
+      handles in S4PM.
+    * Moved the $external_archive_system parameter out of the 
+      s4pm_stringmaker_global.cfg file into this one. It makes far more sense 
+      to place it here.
+
+s4pm_sweep_data_handles.pl
+
+    * New file that took the original s4pm_sweep_data.pl script and modified it 
+      rather substantially to make use of the new file handle function in the 
+      S4PM module. Among other changes, the old wipe_directory() and wipe_file()
+      functions were replaced with a single generalized wipe_handle() function. 
+      This script is only used if $use_filehandles is set.
+
+s4pm_tk_admin.pl
+
+    * Added cleaning out of request stub files in acquire_data/ACQUIRES 
+      directory.
+
+stationmaster.pl
+
+    * Added customizable sort function capability.
+
+--------------------------------------------------------------------------------
+June 27, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.13.0 Release Notes
+
+1.1. New Features
+
+   1. Auto Request Configuration Fix - A bug in the configuration of the Auto 
+      Request station has been fixed. The bug resulted from the station 
+      thinking that it was interoperating with S4PA even though it was, in 
+      fact, interoperating with ECS (TT 17591).
+
+   2. New Required-If Production Rule - This new production rule supports a 
+      rule that says that if a condition is met, the data type is considered to 
+      be required. Otherwise, that data set is not needed. The condition is a 
+      test which is run on the trigger data file for a particular run. The test 
+      can also be run on the associated metadata file. If the test is 
+      successful, the data type is treated as a normal required data type. If 
+      the test fails, the rule is dropped all together. The tests can be 
+      commands or scripts that are run. As examples, two such scripts are 
+      included: s4pm_reqif_day.pl and s4pm_reqif_night.pl. These scripts test 
+      the metadata file and succeed only if the DayNightFlag therein is set to 
+      "Day" or "Both"; or "Night", respectively.
+
+   3. Fixes in Acquire Station - A number of fixes were made to the Acquire 
+      Data station, mostly in configuration, based upon real-world tests of 
+      S4PM with S4PA.
+
+   4. S4PM Monitor Disabled Station Filter - By default, the S4PM Monitor was 
+      modified to not show stations that are disabled ("grayed out"). To 
+      accomplish this, a new option, -F, was added to tkstat.pl and the 
+      Stringmaker derived configuration file was modified to set this option by 
+      default.
+
+   5. FAILPGE Export Bug Fix - FAILPGE jobs in the Export station were failing 
+      because the metadata for the FAILPGE data type contains no LocalGranuleId 
+      attribute. When Export tried to rename the file according to this 
+      attribute (the default behavior) and couldn't find it, the job failed. 
+      The fix was to make the FAILPGE data type a permanent exception to this 
+      rule (Trouble Ticket 17649).
+
+   6. Support for Interoperating with Both ECS and S4PA - Although experimental,
+      this release should allow strings to work with both ECS and S4PA archives.
+      Note that the Auto Request Tool now defaults to working only with the ECS 
+      archive. To work with S4PA, an extra argument needs to be passed: 
+      s4pm_tk_auto_request -o AUTO_ACQUIRE
+
+1.2. Detailed File Changes
+
+s4p_remote_polling_pdr.pl
+
+    * New script brought over from S4PA (s4pa_remote_polling_pdr.pl) and added 
+      to S4P due to its generality.
+
+S4PM::Algorithm.pm
+
+    * Added support for the required-if production rule by modifying new() to 
+      read in the new 'test' attribute of the %inputs hash when the need is set 
+      to REQIF.
+
+S4PM::AlgorithmIO.pm
+
+    * Added support for the required-if production rule by adding a new test() 
+      function for retrieving or setting the 'test' value.
+
+s4pm_acquire_data.pl
+
+    * Changed output work order name from REGISTER_DATA to just REGISTER to be 
+      consistent with what Receive DN does.
+
+s4pm_export.pl
+
+    * Fixed bug (TT 17649) that caused FAILPGE to fail on export due to the 
+      fact that the metadata contains no LocalGranuleId attribute. The fix was 
+      to make FAILPGE a permanent exception to the rule of renaming files 
+      according to the LocalGranuleId attribute.
+
+s4pm_find_data.pl
+
+    * Modified subroutine get_ur() so that it accepts lines in UR files that 
+      begin with 'ftp' as is the case when S4PA is providing the data.
+
+s4pm_reqif_day.pl
+
+    * New script to support the required-if-day production rule. The script is 
+      also a template for generating other examples of the new required-if 
+      production rule. The script simply examines the DayNightFlag attribute in 
+      the metadata file. It exits 1 if the attribute is set to "Day" or "Both", 
+      0 otherwise.
+
+s4pm_reqif_night.pl
+
+    * New script to support the required-if-night production rule. The script 
+      is also a template for generating other examples of the new required-if 
+      production rule. The script simply examines the DayNightFlag attribute in 
+      the metadata file. It exits 1 if the attribute is set to "Night", 0 
+      otherwise.
+
+s4pm_stringmaker_algorithm.cfg
+
+    * Added documentation and an example of the new required-if production rule.
+
+s4pm_stringmaker_derived.cfg
+
+    * Modified the %cfg_commands setting for the Auto Request station where the 
+      archive system is ECS. Version 5.12.0 had added in the new -f option which
+      points to the s4pm_tk_compose_request.cfg file. But this should only be 
+      done if the system is S4PA. The bug caused Auto Request to think it was 
+      talking to S4PA even when it wasn't.
+    * Modified the %cfg_commands hash in Acquire Data for work orders named 
+      DAN.* rather than ACQUIRE_DATA. Also, added the $cfg_work_order_pattern 
+      setting it equal to 'DAN*.PDR.
+    * Modified $cfg_work_order_pattern in the Receive PAN station to include 
+      'DO.' prepended if the external archive system is S4PA. This might be 
+      temporary since S4PA will likely be modified to not include the 'DO.' 
+      prefix in a future release.
+    * Modified configuration in Receive DN so that the station is disabled if 
+      the external archive system is S4PA.
+    * Modified the building of the s4pm_start.ksh file so that tkstat.pl is run 
+      with the -F option that prevents disabled stations from being shown.
+    * Added support for connectivity with both ECS and S4PA by allowing 
+      $external_archive_system to be set to "both" as well as "ecs" and "s4pa".
+
+s4pm_stringmaker_global.cfg
+
+    * Updated documentation on the $external_archive_system parameter noting 
+      that valids now also include 'both' in addition to 'ecs' and 's4pa'.
+
+s4pm_stringmaker_static.cfg
+
+    * Minor fix to the checking of the parameter $external_archive_system.
+
+s4pm_select_data.pl
+
+    * Added support for the required-if production rule. Added 
+      pass_trigger_test() function to execute tests defined by the new 'test' 
+      attribute of the %inputs hash parameter when the 'need' is set to REQIF. 
+      Also, did some minor clean up of the code in the area.
+
+s4pm_tk_auto_request.pl
+
+    * Added a new argument -o that dictates whether the data are to be retrieved
+      from an ECS or a S4PA archive. If -o AUTO_REQUEST is set, the request will
+      be routed through the Request Data station which works with ECS; if -o 
+      AUTO_REQUIRE is set, the request will be routed to the Acquire Data 
+      station which works with S4PA. The default is an AUTO_REQUEST routed to 
+      Request Data for ECS.
+
+tkstat.pl
+
+    * Added new -F option that removes disabled stations from the monitor 
+      display.
+
+--------------------------------------------------------------------------------
+May 30, 2006
+--------------------------------------------------------------------------------
+
+S4PM 5.12.0 Release Notes
+
+1.1. New Features
+
+   1. Production Summary Bug Fixed - A bug when using the Production Summary
+      feature caused Stringmaker to fail complaining that the Production 
+      Summary data type was not set in the Stringmaker data types configuration 
+      file. This should have been done automatically without the user having to 
+      explicitly set it. The bug has been fixed.
+
+   2. Fill Hole Tool Fixes - A fix made in 5.11.0 caused the Fill Hole tool to 
+      be filled out with output data types; these data types should not be 
+      listed there. In this release, the code responsible for this has been 
+      fixed. If there is no implicit algorithm chaining in the string, the Fill 
+      Hole tool lists the same data types as the Compose Data Request tool, but 
+      with smaller time increments.
+
+   3. AIRS Version 5 Production Rule Enhancements - Added support for
+      START_OF_AIRS_PENTAD. Made changes to allow fully-hands-off S4PM 
+      processing of monthly and pentad DPRs. Prior releases required operator
+      modification of the algorithm select_data config files to adjust the 
+      coverage to represent the actual number of days in the period being 
+      processed -- now done automatically by S4PM.
+
+   4. Leap Second Boundary Crossing Bug Fixed - A bug occurring when a DPR
+      straddles a leapsecond transition caused the DPR times to have the same 
+      leap second correction applied. This has been fixed.
+
+   5. Enhancement to s4p_mk_pdr.pl Script - Added -n nodename argument to
+      override the default from gethostbyname.
+
+   6. Enhancements in Find Data - The Find Data station code has been reworked 
+      to improve performance. In particular, if the file name pattern configured
+      in a string is such that file names are fully predictable (i.e. no glob 
+      patterns), the Find Data code is now smart enough to simply test for the 
+      file's existence rather than running an expensive glob operation. Note 
+      that the default file name pattern (the $s4pm_filename_pattern parameter 
+      in the Stringmaker Data Types configuration file) does not allow for this 
+      performance enhancement since it includes non-predictable elements in the 
+      file names (i.e. production date/time). Thus, to take advantage of this 
+      enhancement, this parameter must be overriden with one that leaves out 
+      these elements. Note that in low load strings, the performance increase
+      may not be noticable.
+
+   7. Enhancement to the Compose Data Request Tool - Added ability to "query"
+      Level 0 S4PA archives.
+
+   8. Function Added to S4P::MetFile - Added a convenience function,
+      get_datetime_range(), to retrieve BeginningDateTime and EndingDateTime 
+      from a metadata file.
+
+   9. Fix to S4PM.xs - Added fflush(stdout) to see if we could eliminate 
+      problem of occasional non-output on some Linux machines.
+
+   10. S4PM::GdDbi Enhancement - Changed recognition of Sybase to include other
+       DAACs and g3 machines.
+
+   11. Terminate Job Fix in S4P - Fixed terminate_job() to kill the "real" 
+       children, not the "sh -c" process.
+
+   12. Time Calculation Fix to Select Data - Fixed bug in Select Data for the 
+       end time calculation with START_OF_MONTH.
+
+   13. Leap Second Bug Fix <96> Fixed a leap second bug in S4PM.pm and 
+       s4pm_select_data.pl.
+
+   14. Bug Fix in s4p_mk_pdr.pl - Fixed bug that did not recognize -e days and 
+       -o orig_system.
+
+1.3. Detailed File Changes
+
+S4P.pm
+
+    * Fixed terminate_job to kill the "real" children, not the "sh -c" process.
+
+S4P::FileGroup.pm
+
+    * Modified subroutines ftp_get() and ssh_get() to accomodate a new 
+      environment variable: FTP_FIREWALL. This is used, in turn, to pass 
+      firewall information to the Net::FTP module. If FTP_FIREWALL is undefined,
+      however, no firewall options are passed to Net::FTP. The purpose of 
+      implementing this as an environment variable is to allow the API to 
+      ftp_get() and ssh_get() to remain unchanged.
+
+S4P::MetFile.pm
+
+    * Add subroutine get_datetime_range() to obtain BeginningDateTime and 
+      EndingDateTime from metadata file in one fell swoop.
+
+s4p_mk_pdr.pl
+
+    * Added -n nodename argument to override default from gethostbyname.
+    * Added getopts() call to pick up all command line arguments (formerly 
+      ignored).
+    * Fixed bug that did not recognize -e days and -o orig_system.
+
+S4P::PAN.pm
+
+    * Modified subroutine write() to accomodate a new environment variable: 
+      FTP_FIREWALL. As with the changes in S4P::FileGroup, this is used to pass 
+      firewall information to the Net::FTP module. If FTP_FIREWALL is undefined,
+      however, no firewall options are passed to Net::FTP. The purpose of 
+      implementing this as an environment variable is to allow the API to 
+      write() to remain unchanged.
+
+S4PM.pm
+
+    * Changed order of application of AIRS instrument offset and leap second 
+      correction in leapsec_correction().
+
+S4PM::Algorithm.pm
+
+    * Added method update_info() that updates the algorithm processing_period, 
+      product_coverage, and trigger_coverage in the invoking object. Updates 
+      are made only for objects with processing_start = START_OF_MONTH or 
+      START_OF_AIRS_PENTAD. The start time of the processing interval is passed 
+      as an argument to the method. The updated values reflect the number of 
+      days in the processing period, which varies based on the start time.
+
+S4PM::DataRequest.pm
+
+    * Added ability to handle multi-granule files in find_urls_by_datatime(), 
+      such as those available in a Level 0 S4PA archive.
+
+s4pm_find_data.pl
+
+    * Modified subroutine get_data_pathname() rather significantly so that what 
+      Find Data looks for are specifically the .ur files. This should lead the 
+      way to not globbing when the file name patterns are adjusted to not 
+      contain production date/time fields. For now, it is just cleaner, more 
+      efficient code.
+    * Another modification to get_data_pathname() is that if the file name 
+      pattern is fully qualified (that is, contains to * glob characters), it 
+      runs a simple file existence test rather than executing an expensive glob.
+
+s4pm_prepare_run.pl
+
+    * Added invocation of $algorithm->update_info(), using the start time from 
+      the input workorder as the argument.
+
+s4pm_preselect_data.pl
+
+    * Added invocation of $algorithm->update_info(), modified one program 
+      variable to incorporate the updated info.
+
+s4pm_regular_block.pl
+
+    * Added support for START_OF_AIRS_PENTAD boundary.
+
+s4pm_run_test.pl
+
+    * Modified so that if it can't find the S4PM binaries, it fails rather than 
+      trying to recover. This was necessary because the s4pstart.ksh script, 
+      which it calls, assumes that the PATH environment variable includes the 
+      location of stationmaster.pl.
+
+s4pm_select_data.pl
+
+    * get_process_end_time() was subtracting 1 second from the end time for 
+      START_OF_MONTH processing_start, but for no others. The inconsistency 
+      was fixed by not doing that subtraction.
+    * Added support for START_OF_AIRS_PENTAD boundary.
+    * Added invocation of $algorithm->update_info()
+    * Modified get_process_end_time() so that the leapsecond correction is 
+      applied independently to both start and end, rather than just to start.
+
+s4pm_stringmaker.pl
+
+    * Fixed some code in sub read_algorithm_cfg() that was supposed to 
+      automatically set the data type max size of production summary data 
+      types. It was trying to do this via the %all_datatype_max_sizes hash 
+      when it should have been using the %datatype_max_sizes hash instead. 
+      This was fixed.
+    * Modified a line where it checks whether $max_children has been set or 
+      not. It was doing a simple: if ($max_children), but this fails if you 
+      purposely set $max_children to zero. To allow it to accept a setting of 
+      zero, the test was changed to: if ( defined $max_children ).
+
+s4pm_stringmaker_datatypes.cfg
+
+    * Added description of the new @non_lgid_datatypes parameter.
+    * Updated documentation on the $s4pm_filename_pattern parameter to explain 
+      the impact on performance of having the machine date/time included in 
+      the file names. Also emphasized the need to set the S4PM_CONFIGDIR 
+      environment variable if this option is used.
+    * Added description and example of the new %s4pa_data_map hash that defines 
+      where data are located in S4PA systems. This parameter is ignored when 
+      S4PM is only interoperating with ECS.
+
+s4pm_stringmaker_derived.cfg
+
+    * Added code to add the @non_lgid_datatypes parameter to the s4pm_export.cfg
+      file if present, non-empty, and the external archive system is S4PA.
+    * A number of fixes to the Request Data and Acquire Data sections to address
+      better handling of the Fill Hole tool.
+    * Modified the Request Data station setup so that if inputs in the INPUT 
+      disk pool are symbolic links, the $cfg_max_children is set to the default 
+      of 5 rather than 1 (single threaded). We can do this since no allocations 
+      are made when this is the case.
+    * For DME, set the polling interval to 20 seconds from the default of 120 
+      seconds to improve DME peformance.
+    * Added support for properly populating the s4pm_tk_compose_request.cfg 
+      file with the new %cfg_location hash when S4PM is interoperating with 
+      S4PA. The changes affect the Acquire Data and Auto Request stations.
+    * Modified stuff for the Auto Request station which now has functionality 
+      to support S4PA interoperability.
+
+--------------------------------------------------------------------------------
+Apr 25, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.11.0 Release Notes
+
+1.1. New Features
+
+   1. Production Summary Feature - Added a new optional feature that allows 
+      algorithms to generate a Production Summary output file. This file is a 
+      summary of the each algorithm run and is generated by a customized summary
+      of the runtime log files. Refer to the Stringmaker Algorithm configuration
+      file for details or the S4PM 5.11.0 Installation and Configuration Guide.
+
+   2. New Acquire Data Station - Added support for the new Acquire Data station 
+      which is used in place of Request Data for non ECS S4PM strings. To 
+      support this, a new parameter has been added to the Stringmaker Global 
+      configuration file: $external_archive_system which can be set to either 
+      'ecs' or 's4pa'. The default (for now) is 'ecs'. This station FTPs data 
+      directly or creates symlinks (for local files). The calling sequence for 
+      the script is s4pa_acquire_data.pl -f config_file -r request_dir -F 
+      ftp_dir -l symlink_dir work_order. It outputs work orders that are sent 
+      downstream to Register Data.
+
+   3. s4pm_run_easy.pl - Properly detects when more than one product output file
+      is being used with the tar option and errors out before attempting tar 
+      command.
+
+   4. When $trigger_coverage Set To Zero - A bug was fixed that caused the 
+      invokation of dynamic processing boundaries to fail. If one sets both the 
+      $processing_period and the $trigger_coverage to zero in the Stringmaker 
+      Algorithm configuration file, it is supposed to cause the start and stop 
+      times of the output product to be aligned with the start time of the 
+      input file and not fixed to a predicted start time. This is useful in 
+      direct broadcast where the input can start at any time. But the bug 
+      prevented this from working properly. This has been fixed.
+  
+   5. Fill Hole Tool - In S4PM strings where there is no implicit algorithm 
+      chaining, the Fill Hole tool (in the Request Data station) was not working
+      due to a malformed configuration file. This has been fixed.
+
+   6. FileSpec.pm - Switched to use of Basename in pathname() to get around 
+      Perl argument-passing bug.
+
+   7. Stationmaster Fix for Non Forking Case - Fixed stationmaster.pl for the 
+      non-forking case ($cfg_max_children = 0)
+
+   8. s4pm_bootstrap_dprep.pl - Changed contact info in metadata file to 
+      help-disc@listserv.gsfc.nasa.gov
+
+1.2. Detailed File Changes
+
+S4P::FileSpec.pm
+
+    * Changed pathname() to use basename and dirname to split up the path.
+
+s4pm_acquire_data.pl
+
+    * New script to support the new Acquire Data station which is used in place 
+      of Request Data on strings that interoperate with S4PA.
+
+S4PM::Algorithm.pm
+
+    * Fixed a bug in the reading of $trigger_coverage from the Stringmaker 
+      Algorithm configuration file.
+    * Added handling of the new %production_summary_parms hash in new().
+
+s4pm_bootstrap_dprep.pl
+
+    * Changed contact info in metadata file to help-disc@listserv.gsfc.nasa.gov.
+
+s4pm_run_easy.pl
+
+    * Properly detects when more than one product output file is being used 
+      with the tar option and errors out before attempting tar command.
+
+s4pm_stringmaker.pl
+
+    * Added support for Production Summary generation. Modified the 
+      read_algorithm_cfg() to read in the %production_summary_parms hash from 
+      the Stringmaker Algorithm configuration file and feed it into the 
+      %all_production_summary_parms hash.
+
+s4pm_stringmaker_algorithm.cfg
+
+    * Added the %production_summary_parms hash to support the generation of 
+      Production Summary files by algorithms.
+
+s4pm_stringmaker_derived.cfg
+
+    * Made a change so that the s4pm_tk_fillhole_request.cfg file is properly 
+      generated even in strings where there is no implicit algorithm chaining. 
+      This was getting generated before, but the hashes within were not filled 
+      out.
+    * Added support for Production Summary generation by adding code to 
+      generate the required parameters in the <algorithm>.cfg file in the Run 
+      Algorithm station.  
+    * Added code to support the Acquire Data station. Whether a Acquire Data or 
+      Request Data station is built is determined by the setting of the new 
+      $external_archive_system parameter.
+
+s4pm_stringmaker_global.cfg
+
+    * Added the new parameter $external_archive_system which sets the system 
+      into which S4PM exports data and the system from which PANs, DNs, and 
+      subscription notifications are received.
+
+s4pm_stringmaker_host.cfg
+
+    * Added a new parameter $local_s4pa_ftp_root to support S4PM strings that 
+      interoperate with a local instance of S4PA. It sets the root directory 
+      of the S4PA data archive.
+
+s4pm_stringmaker_static.cfg
+
+    * Removed any description of the Request Data station completely out and 
+      into the s4pm_stringmaker_derived.cfg file since its presence it no 
+      longer ensured depending upon the configuration.
+
+s4pm_tk_compose_request.pl
+
+    * Changed button lable "Query Database" to "Query Archive" to make it more 
+      compatible with S4PA. Also, changed window label from "Compose Request 
+      Tool" to "Compose Data Request Tool".
+
+s4pm_tk_compose_single_request.pl
+
+    * Changed button lable "Query Database" to "Query Archive" to make it more 
+      compatible with S4PA. Also, changed window label from "Compose Sinlge 
+      File Request Tool" to "Compose Single Data File Request Tool".
+
+stationmaster.pl
+
+    * Fixed code to properly handle the case where $cfg_max_children = 0. This 
+      was fossil code that did not get updated over the years.
+
+tkstat.pl
+
+    * Modified create_menu() so that if $cfg_max_children is set to zero, the 
+      'Stop Fast' option for turning off a station is removed. The reason is 
+      that this combination can be dangerous.
+    * Also modified show_station_status() to prevent a station button from 
+      showing up as yellow when the $cfg_max_children is set to zero. This bit 
+      of code was originally in there, probably to warn if cfg_max_children was 
+      set to zero accidentally.
+
+--------------------------------------------------------------------------------
+Apr 4, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.10.0 Release Notes
+
+1.1. Functional Changes
+
+   1. Permission Fix For Data Mining Strings - When a new S4PM string was 
+      created on behalf of a Data Mining Edition user, the Request Data 
+      directory and a logs directory did not have the correct permissions. This 
+      required someone to manually change the permissions. The bug causing this 
+      has been fixed and the permissions are now set automatically to the 
+      correct values.
+
+   2. Run Algorithm Browse Handling Fix - A fix was made to the 
+      s4pm_run_algorithm.pl script that manifests itself when an algorithm that 
+      is supposed to produce one or more browse files produces none.
+
+   3. Changes to Subscription Requests in DME - Modifications were made in DME 
+      subscription requests sent to User Services to aid them in setting up the 
+      proper subscriptions.
+
+   4. Stringmaker Fix For Calling s4pm_resubmit_data_request.pl - A fix was made
+      in s4pm_stringmaker_derived.cfg so that if the $scli_host parameter is 
+      defined, the s4pm_resubmit_data_request.pl script is called with the 
+      extra -h <scli_host> option.
+
+   5. s4p_mk_pdr.pl - A handy new script to make PDRs for testing, workarounds, 
+      etc.
+
+   6. s4p_pdr_fetch.pl - A useful script to fetch the files in a PDR via FTP 
+      for remote machines. While this is primarily designed for handling S4PA 
+      data and similar data repositories, it is also useful for testing, 
+      workarounds, etc.
+
+   7. Bug Affecting AIRS Data in DME Fixed - A bug that affected Data Mining 
+      Edition strings that used AIRS data types as input was fixed. The problem 
+      was fixed in the s4pm_sub_notify.pl script which had a very AIRS-specific 
+      shortcut in it that caused the problem. This shortcut has been removed.
+
+   8. Compose Data Request Tool Enhancements for Datapool and S4PA - 
+      Enhancements were made to query S4PA-like or Datapool-like file systems, 
+      instead of the ECS database. This behavior is triggered via the presence 
+      of a %cfg_location variable in the configuration file. At this point, 
+      this is at proof-of-concept maturity. The next release will have the 
+      operational capability.
+
+1.2. Detailed File Changes
+
+S4P::FileGroup.pm
+
+    * Added symlinks method to create symlinks in a local directory
+    * Modified formatting of error message on download failure to remove 
+      parentheses and embedded return.
+
+S4P::PDR.pm
+
+    * Added copy method to make a true copy of the PDR object.
+    * Added ftp_get method to loop through all FileGroups and fetch them from 
+      an FTP site.
+
+s4p_mk_pdr.pl
+
+    * New script for making PDRs, with syntax: s4p_mk_pdr.pl [-e exp_days] 
+      [-o orig_system] datafile datafile ....
+
+s4p_pdr_fetch.pl
+
+    * New script for fetching files in a PDR, with syntax: s4p_pdr_fetch.pl 
+      [-d datadir] [-o pdr_outdir] PDR_file. If the PDR refers to local data, 
+      it creates symlinks. If it is a remote machine, it uses FTP to fetch the 
+      data. If local, it creates symlinks. A new PDR can be written referring 
+      to the local copy.
+
+S4PM.pm
+
+    * Added optional override_pattern argument for filename_pattern to 
+      make_patterned_filename in order to support pattern matching for "foreign"
+      directory structures.
+    * Made ESDT, version, year optional for override patterns.
+
+S4PM::DataRequest.pm
+
+    * Added the ability to query an S4PA-like or DataPool-like file system, 
+      locally or remotely (via anonymous FTP). See also 
+      s4pm_tk_compose_request.pl.
+
+s4pm_configurator.pl
+
+    * Removed stuff having to do with Stringmaster (since Stringmaster was 
+      removed from an earlier baseline).
+
+s4pm_request_subscription.pl
+
+    * Information in the request has been modified to help User Services with 
+      setting up the subscription. Specifically, that the subscription was for 
+      notification only was added. Also, the USERSTRING parameter was added.
+
+s4pm_resubmit_data_request.pl
+
+    * Enhanced the prolog comments.
+
+s4pm_run_algorithm.pl
+
+    * Made a fix in the return handling of the export_browse() function so that 
+      it worked properly if no browse files were produced.
+
+s4pm_stringmaker.pl
+
+    * Fixed a couple of lines that set the permissions on the request_data 
+      station directory and the logs directory for Data Mining strings. Those 
+      lines had referenced $gear, but this parameter had been changed to 
+      $instance. Thus, the lines were invalid. They have now been fixed.
+
+s4pm_stringmaker_derived.cfg
+
+    * Made a fix so that if $scli_host is defined, the 
+      s4pm_resubmit_data_request.pl script is called with the extra -h 
+      <scli_host> option.
+
+s4pm_sub_notify.pl
+
+    * Got rid of some AIRS specific code that forced all data types with names 
+      that begin with 'AIR' to be renamed 'AIRS'. This was a shortcut that 
+      saved on listing all AIRS data types in the Subscription Notify 
+      station.cfg file, but it interfered with non-AIRS S4PM strings that 
+      happened to use AIRS data types as input.
+
+s4pm_tk_compose_request.pl
+
+    * Modified to query remote file systems using FTP or local filesystems in 
+      place of the ECS database. (N.B.: this functionality is at 
+      proof-of-concept stage: not ready for prime time.)
+
+--------------------------------------------------------------------------------
+Feb 15, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.9.2 Release Notes
+
+1.1. Functional Changes
+
+   1. Bug Fix for Resubmit Request Functionality - A bug that caused this 
+      functionality to not work when requests were made via a remote SCLI has 
+      been fixed.
+
+   2. AIRS-Specific Fix in Prepare Run - This bug fix only affected the 
+      AIRS-specific code in the s4pm_prepare_run.pl script. It was done to 
+      repair an problem with running the AIRS algorithms on data that included 
+      the HSB instrument.
+
+   3. Stop Station Bug on Red Hat Enterprise 4 Machines - A peculiar set of 
+      related symptoms was seen on Linux boxes running Red Hat Enterprise 4. 
+      The symptoms were (1) the Stop All button resulted in defunct processes 
+      being created, (2) Stop or Stop Fast would not work on a station where 
+      there were active jobs running until after all the jobs completed. A fix 
+      for this problem was applied to the Stationmaster code.
+
+   4. Hyphen Characters in Data Type Names - A fix was put in so that data type 
+      names containing the hyphen character ('-') would work within S4PM. The 
+      lack of support for this charactsr caused jobs to hang in the Allocate 
+      Disk station because output file names (in the PCF) were not being 
+      properly parsed for the data type portion. This resulted in the station 
+      looking for space for a data type that it was not configured for.
+
+   5. Bug Fix in Run Algorithm - Run Algorithm was modified to account for the 
+      creation of more than one browse in a given PGE run. (Previously, the 
+      PDR for the second browse overwrote the PDR for the first, so that the 
+      first one was never ingested.)
+
+   6. Local Input File Name Support in s4pm_run_easy.pl - Added a new option to 
+      the s4pm_run_easy.pl script so that it creates a symbolic link to the 
+      input file using the file name stored in the LocalGranuleID attribute of 
+      the accompanying XML file. This option is invoked using the -L argument 
+      when running s4pm_run_easy.pl. This option allows algorithms to run on 
+      input data having native file names rather than S4PM internal file names, 
+      which is the default. This can be important for algorithms that rely on 
+      their input files having the expected file names.
+
+
+1.2. Detailed File Changes
+
+S4PM.pm
+
+    * Made fix to get_regex() so that data type names containing hyphen 
+      characters would work. Underscore characters are already supported.
+
+s4pm_prepare_run.pl
+
+    * Changed the AIRS-specific code to recognize with-HSB PGEs (AhL2). Looking 
+      forward, we'll also have to have support for the future without-AMSU 
+      algorithms (AaL2), so I generalized the filter.
+
+s4pm_resubmit_data_request.pl
+
+    * Added additional "h" argument in getopts call.
+
+s4pm_run_algorithm.pl
+
+    * Fixed logic to output more than one EXPORT_BROWSE PDR if more than browse 
+      is created.
+
+s4pm_run_easy.pl
+
+    * Added a new option that creates a symbolic link to the input file using 
+      the file name stored in the LocalGranuleID attribute in the accompanying 
+      XML file. This option is invoked using the -L argument.
+
+stationmaster.pl
+
+    * Added a close statement which seemed to fix problems seen on Linux boxes 
+      running Red Hat Enterprise 4. The symptom was that a station could not 
+      be stopped (via Stop or Stop Now) if there were jobs running within. In 
+      addition, defunct processes were getting generated.
+
+--------------------------------------------------------------------------------
+Feb 6, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.9.1 Release Notes
+
+1.1. Functional Changes
+
+   1. Bug Fix in Poll Data Station - A bug was fixed in the Poll Data station 
+      that caused the jobs to fail.
+
+   2. Bug Fix for Failed DN Handler - A bug caused the failure handler in the 
+      Receive DN station that resubmits requests to not work. This has been 
+      fixed.
+
+   3. Refactored Input Work Order Checking - The steps taken by scripts to 
+      check input work order names and create output work order names has been 
+      cleaned up and refactored.
+
+   4. Algorithm Installation Tool Changes - In previous releases, the Algorithm 
+      Installation Tool (a function available via the Configurator station) 
+      didn't properly adjust uses of extant data when those data were input 
+      for the new algorithm. This has been fixed in this release. If the new 
+      algorithm uses any existing data types, the uses of files of those data 
+      types are adjusted properly so that they can immediately be used by the 
+      new algorithm. In addition, the tool has been modified to allow for the 
+      possibility of data type names and versions being overriden in the 
+      Stringmaker string configuration file; they are normally set in the 
+      Stringmaker data types configuration file.
+
+   5. Track Data Now Accepts Work Order Wildcard - To support the changes to 
+      the Algorithm Installation Tool (above), the Track Data station code has 
+      been modified to accept the wildcard character * in the list of files 
+      specified in the input work order. When this wildcard is included, Track 
+      Data will update the uses of all files matching the pattern formed by 
+      the wildcard.
+
+   6. Run Algorithm Bug When No Data Produced - A bug in Run Algorithm was 
+      fixed that caused the job to fail when no data were produced by the 
+      algorithm, yet it exited with a zero.
+
+   7. Prepare Run Performance Improvements - Made several changes in
+      s4pm_prepare_run.pl to improve performance when there are many possible
+      output files for an algorithm.
+
+1.2. Detailed File Changes
+
+Configurator.pm
+
+    * Added the stop_station() function to stop a running station. It does so 
+      by dropping in a STOP work order.
+
+s4pm_allocate_disk.pl
+
+    * Minor changes to comments.
+
+s4pm_configurator.pl
+
+    * Modified API so that the mode in which the script is run is passed in 
+      as an argument rather than being based upon the work order name.
+
+s4pm_find_data.pl
+
+    * Added the -pge argument so that the algorithm name doesn't have to be 
+      gleaned from the input work order name.
+
+s4pm_poll_data.pl
+
+    * The output work order was incorrectly being named REGISTER_DATA rather 
+      than just REGISTER. This was corrected.
+
+s4pm_prepare_run.pl
+
+    * Added the -pge argument so that the algorithm name doesn't have to be 
+      gleaned from the input work order name.
+    * Modified to save used file names in a hash rather than in an array to
+      improve performances. Also, moved the invoking of S4P::PCF::parse() to
+      outside a loop over output file entries. This too improves performance
+      particularly where the number of output PCF entries is large.
+
+s4pm_preselect_data.pl
+
+    * Minor change to comments.
+
+s4pm_request_data.pl
+
+    * Removed the checking of the input work order name since this is 
+      superfluous and restrictive if we change work order names in the 
+      configuration.
+
+s4pm_resubmit_data_request.pl
+
+    * Fixed a misnamed work order name: changed DATAREPAIR to DATA_REPAIR.
+    * Fix to allow it to resubmit requests remotely (via a SCLI on another 
+      box).
+
+s4pm_run_algorithm.pl
+
+    * Fixed a bug whereby the algorithm would fail if no data were produced. 
+      This was due to a leftover log file containing the rusage stats. The fix 
+      was to have this log file deleted whenever no data are produced and the 
+      algorithm exits with a zero.
+
+s4pm_stringmaker_derived.cfg
+
+    * Modified for the new argument added to the s4pm_configurator.pl script.
+    * Modified for the new argument added to the s4pm_find_data.pl script.
+    * Modified for the new argument added to the s4pm_prepare_run.pl script.
+    * Fixed a bug in the handling of the arguments to the s4pm_sweep_data.pl 
+      script (the -link and -expire arguments).
+
+s4pm_stringmaker_string.cfg
+
+    * Enhanced the documentation describing the $input_symlink_root parameter.
+
+s4pm_sweep_data.pl
+
+    * Removed the checking of the work order name since this is superfluous 
+      and restrictive if we change work order names in the configuration.
+
+s4pm_tk_install_algorithm.pl
+
+    * Modified to properly handle the adjusting of uses when an algorithm is 
+      installed.
+    * Modified to account for the possibility that some parameters in the 
+      Stringmaker data types configuration file will be overriden in the 
+      Stringmaker string configuration file. Specifically, the data type name 
+      and version can now be handled via such overrides in this tool.
+
+s4pm_track_data.pl
+
+    * Added capability to handle the '*' wildcard character in file names in 
+      the input work order. This allows a single item in the input work order 
+      to represent many items in the database (e.g. all items having a 
+      particular data type).
+
+--------------------------------------------------------------------------------
+Jan 10, 2006
+--------------------------------------------------------------------------------
+
+1. S4PM 5.9.0 Release Notes
+
+1.1. Functional Changes
+
+   1. New S4PM Test Package - A new optional package has been added to S4PM in 
+      addition to the mandatory packages: S4P, S4PM, and S4PM_CFG. This package,
+      S4PM_TEST, contains pre-configured Stringmaker configuration files and two
+      synthetic algorithms. It is intended as a test package for validating a 
+      new S4PM installation. It can also function as a working example for new 
+      users of S4PM. A single command will create a new S4PM string configured 
+      with the two algorithms, start up the S4PM Monitor, start up the stations,
+      and run the algorithms therein. Upon successful completion, the string is 
+      shut down.
+
+   2. Stringmaster Removal - Stringmaster has been deprecated for some time and 
+      has now been dropped from the S4PM baseline. All users should now use 
+      Stringmaker, its successor.
+
+   3. Generalization of Stringmakerall - The Stringmakerall utility has been 
+      generalized so that it works at any site. In previous releases this 
+      utility, which runs Stringmaker on all strings on a particular machine, 
+      was too specific for the GES DISC environment where it was born.
+
+   4. Fix To Algorithm Info Tool - In previous releases, the Algorithm 
+      Information tool (available via the S4PM Monitor) displayed information on
+      all algorithms installed in the string. This did not equate to which were 
+      actually configured to be running in the string. This has been fixed. The 
+      display in this release only shows those algorithms that are currently 
+      configured to run in the string.
+
+   5. Finish Incomplete Order Failure Handler - On-demand strings now contain a 
+      Finish Incomplete Order failure handler in the Track Requests station. If 
+      a user's order is only partially complete, an operator can select this 
+      failure handler to force the release of the part of the order that was 
+      successful. The parts that failed are left out of the order.
+
+   6. New Smart Disk Allocation - Added support for "smart" disk allocation. 
+      This option is enabled or disabled via the new $smart_allocation para-
+      meter in the Stringmaker string configuration file. When enabled, the 
+      allocation of disk pool space is based upon actual file sizes rather than 
+      on a predicted (usually a maximum) file size. This is done by first making
+      an allocation based on the predicted file size and then, once the file 
+      arrives or is created, adjusting that allocation based upon the actual 
+      file size. This feature is particularly useful in strings where file sizes
+      vary greatly, such as in on-demand processing strings where most of the 
+      processing is devoted to subsetting or subsampling services. When enabled,
+      smart allocation applies to all data types. Smart allocation is disabled 
+      by default. N.B.: When using smart disk allocation, use of the -g option 
+      is recommended in s4pm_tk_disk_alloc.pl, in order to show GB instead of 
+      files (which is typically miscalculated in this case).
+
+   7. New Option for FTP Pull Expiration File - When a string is configured for 
+      its input being symbolic links to a FTP pull area in ECS Datapool, this 
+      new option will create a file of URs of data that can be safely deleted 
+      (expired) from the FTP pull area. It is assumed that some script (not 
+      part of S4PM) will read the file and perform the expiration.
+
+   8. S4P::ResPool::create_pools - Added as a callable function (formerly only 
+      usable via the script cpooldb.pl).
+
+   9. Allocation Skipped if Symbolic Link - In 5.8.1, data files that were 
+      actually symbolic links were assigned a small nominal file size of 2048 
+      bytes overriding what ever was set for the maximum size set for a file of 
+      that file type. In this release, rather than allocating a small amount if 
+      disk space, the allocation process is instead skipped altogether.
+
+  10. Bug Fix in S4PM::Algorithm - A bug affecting the file accumulation 
+      production rule was fixed in this release. The bug caused a failure in 
+      the Select Data station, specificially, in the s4pm_preselect_data.pl 
+      script for algorithms employing the %file_accumulation_parms parameter in 
+      the Stringmaker algorithm configuration file.
+
+  11. Bug Fix in S4PM - A bug was fixed in the make_patterned_filename() 
+      function whereby the day of year portion of the production date/time part 
+      of the data file name (the ~N component) wasn't getting padded properly 
+      with zeros for days of the year prior to 100. This caused data file names 
+      assigned by the Prepare Run station to be incorrect. The error propagated 
+      to the Allocate Disk station which couldn't properly parse these incorrect
+      file names to locate the data type. The result was that Allocate Disk 
+      continuously recycled work orders and no disk was allocated. This problem 
+      has now been fixed.
+
+  12. Fixes for Data Mining Edition - A number of fixes were made in support of 
+      S4PM Data Mining Edition (DME).
+
+  13. View Disk Allocations and Usage Tool - In on-demand strings by default, 
+      the View Disk Allocations and Usage tool no longer displays the INPUT 
+      disk pool since all inputs are only symbolic links. In addition, the 
+      OUTPUT disk pool is shown as number of gigabytes rather than number of 
+      files. These changes were put in since, by default again, on-demand 
+      strings are configured with smart disk allocations turned on.
+
+  14. Work Order Name Refactoring - A number of work order names have been 
+      changed to better associate them with station names. The table below 
+      shows the old and new work order names:
+
+          Old Work Order Name      New Work Order Name
+          -------------------      -------------------
+          TRIGGER_DATA             REGISTER
+          NEWDATA_algorithm        SELECT_algorithm
+          MOREDATA_algorithm       FIND_algorithm
+          TRIGGER_algorithm        PREPARE_algorithm
+          GETDISK_algorithm        ALLOCATE_algorithm
+          CLEAN                    SWEEP
+
+1.2. Detailed File Changes
+
+Algorithm.pm
+
+    * Changed NEWDATA work order name to SELECT in prolog.
+    * Bug fix in accumulation_start() for handling the file accumulation 
+      production rule. A hash reference was made to attribute 'boundary' when 
+      it should have been 'window_boundary'. This was corrected.
+
+Blocking.pm
+
+    * Changed NEWDATA work order name to SELECT in prolog.
+
+cpooldb.pl
+
+    * Modified to call S4P::ResPool::create_pools() to do most of the work.
+
+FileGroup.pm
+
+    * Modified signature of data_version( $version ) to data_version($version, 
+      [$format] ) to accept an option format argument.
+
+OdlTree.pm
+
+    * Modified the lexer dictionary to account for "GROUPTYPE" and "OBJECTTYPE" 
+      keywords.
+
+ResPool.pm
+
+    * Function create_pools() has been added to do disk pool database creation. 
+      It calls S4P::ResPool::write_to_pool to do most of its work.
+    * Function rite_to_pool has been modified to allow for arrays of pools to 
+      be updated, and to allow an $init argument that deletes all the existing 
+      pools before writing.
+
+s4p_import.pl
+
+    * Changed work order name MOREDATA to FIND in prolog.
+
+s4p_subscribe.pl
+
+    * Added an option (-d) to watch a queue (directory) of PDRs.
+
+S4PM.pm
+
+    * Added free_disk(), a routine extracted from s4pm_sweep_data.pl. This 
+      subroutine frees disk from disk allocation pool. If the $actual_size 
+      parameter is 0, the maximum size (set in the Stringmaker data types 
+      configuration file) is used. If the $actual_size parameter is 1, the 
+      actual size of the file or set of files is used. For this case, the 
+      actual size may be passed in as an argument just in case the file has 
+      already been deleted from disk, as is the case with s4pm_sweep_data.pl. 
+      If the $actual_size parameter is 2, the difference between the maxsize 
+      and the actual size on disk is used. This is used by 
+      s4pm_register_data.pl. Thus for input files, two deallocations from the 
+      original maxsize allocations are done: the first is to deallocate "unused"
+      space when we determine that the actual file is smaller than the maxsize. 
+      The second is to deallocate the rest of that allocation, i.e., the actual 
+      size itself, when the file is removed.
+    * Bug fixed in make_patterned_filename() whereby the day of year portion of 
+      the production date/time (the ~N component) wasn't getting padded properly
+      with zeros for days of the year prior to 100.
+
+s4pm_airs_L0_check.pl
+
+    * Changed NEWDATA work order name to SELECT.
+
+s4pm_delete_expired_data.pl
+
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_derived.cfg
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_failed_find_data_handler.pl
+
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+
+s4pm_failed_order_handler.pl
+
+    * This script allows partially successful orders in on-demand to be released
+      to the user. The script had been part of the baseline for on-demand 
+      processing, but fell out of the baseline due to some testing issues. It 
+      has been brought back into the baseline.
+
+s4pm_failed_pge_handler.pl
+
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_failed_qc_handler.pl
+
+    * Changed TRIGGER_DATA work order name to REGISTER.
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_failed_service_handler.pl
+
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_find_data.pl
+
+    * Changed MOREDATA work order name to FIND.
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm.
+
+s4pm_global.cfg
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_insert_datapool.pl
+
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+
+s4pm_max_children.cfg
+
+    * Deprecated and REMOVED from the baseline.
+
+S4PMOD.pm
+
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_pge_esdt.cfg
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_poll_data.pl
+
+    * Changed TRIGGER_DATA work order name to REGISTER.
+
+s4pm_prepare_run.pl
+
+    * Changed TRIGGER_algorithm work order name to PREPARE.
+    * Changed GETDISK_algorithm work order name to ALLOCATE_algorithm.
+
+s4pm_preselect_data.pl
+
+    * Changed NEWDATA work order name to SELECT.
+    * Changed MOREDATA work order name to FIND.
+    * Modified some code to account for .xml files in Data Mining strings.
+
+s4pm_purge_bad_data.pl
+
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm.
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_receive_dn.pl
+
+    * Changed TRIGGER_DATA work order name to REGISTER.
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm in prolog.
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm.
+
+s4pm_register_data.pl
+
+    * Changed NEWDATA_algorithm work order name to SELECT_algorithm.
+    * Changed TRIGGER_DATA work order name to REGISTER.
+    * Added a new argument, -d allocation_db_file, which tells the program to 
+      deallocate the difference between the maxsize and actual file size from 
+      the disk pool.
+
+s4pm_regular_block.pl
+
+    * Changed NEWDATA work order name to SELECT in prolog.
+
+s4pm_request_data.pl
+
+    * Added option -l to skip disk allocations for all data types (it is assumed
+      that all are symbolic links and, therefore, no allocations are necessary).
+
+s4pm_run_algorithm.pl
+
+    * Changed TRIGGER_DATA work order name to REGISTER.
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_s4pa_subscription.pl
+
+    * Changed TRIGGER_DATA work order name to REGISTER.
+
+s4pm_select_data.cfg
+
+    * Changed NEWDATA_algorithm work order name to SELECT_algorithm.
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+
+s4pm_select_data.pl
+
+    * Changed NEWDATA_algorithm work order name to SELECT_algorithm.
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+
+s4pm_split_services.pl
+
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+
+s4pm_stage_for_pickup.pl
+
+    * New script, but it's basically a fork of s4p_import.pl tailored for S4PM 
+      Data Mining strings (it uses copy rather than FTP, for instance).
+
+s4pm_static.cfg
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_string.cfg
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_stringmakerall.pl
+
+    * Generalized so that Stringmaker string configuration files don't have to 
+      adhere to a restricted file naming convention. In previous releases, the 
+      file names had to be S4PMnn_xx_yy where nn represented the machine name 
+      (relevant only for the GES DISC), xx represented the string ID (e.g. MO 
+      for MODIS, AI for AIRS), and yy represented the instance (e.g. RE for 
+      reprocesing, FW for forward). In this version, any file naming convention 
+      is supported.
+
+s4pm_stringmaker_algorithm.cfg
+
+    * Changed NEWDATA_algorithm work order name to SELECT_algorithm.
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+
+s4pm_stringmaker_derived.cfg
+
+    * Changed TRIGGER_DATA work order name to REGISTER.
+    * Changed NEWDATA_algorithm work order name to SELECT_algorithm.
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm
+    * Changed GETDISK_algorithm work order name to ALLOCATE_algorithm.
+    * Changed CLEAN work order name to SWEEP.
+    * Made fix where the checksums directory is created. Replaced 
+      '$config_files{"$sta/checksums/"} = 1;' with 
+      '$config_files{"$sta/checksums/"} = 0;'
+    * Added s4pm_failed_order_handler.pl as a failure handler in the Track 
+      Requests station.
+    * Modified the settings of %cfg_failure_handlers hash so that ad hoc failure
+      handlers could be added via the Stringmaker string configuration file. The
+      way it was constructed before, the failure handlers set in this file would
+      override those set in the string configuration file rather than being 
+      added to them.
+    * Added support for the new $smart_allocation parameter that enables or 
+      disables disk allocations based on actual file sizes.
+    * Added support for the new $input_symlink_expiration_file in the Sweep Data
+      station. In doing so, moved the setting of %cfg_commands for this station 
+      completely out of the s4pm_stringmaker_static.cfg to this file.
+    * Modified Allocation Disk station so that, for on-demand strings, the 
+      'View Disk Allocation and Usage' tool is configured without the INPUT disk
+      pool (since they're just full of symbolic links) and the OUTPUT disk pool 
+      is shown with units of Gigabytes instead of number of files.
+    * Modified the main executable name in the Stage for Pickup station changing
+      it from s4p_import.pl to s4pm_stage_for_pickup.pl.
+
+s4pm_stringmaker_static.cfg
+
+    * Changed CLEAN work order name to SWEEP.
+    * Moved the setting of %cfg_commands for this station completely out to the 
+      s4pm_stringmaker_derived.cfg file.
+    * Got rid of the hardwired and superfluous offset times set in the Register 
+      Data station. These offsets have been getting set in the 
+      s4pm_stringmaker_derived.cfg file.
+    * Removed from the Allocate Disk station the setting of 'View Disk 
+      Allocation and Usage' tool via the %cfg_interfaces parameter. It was moved
+      to the s4pm_stringmaker_derived.cfg file instead.
+
+s4pm_stringmaker_string.cfg
+
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+    * Added the parameter $input_symlink_expiration_file along with a 
+      description.
+
+s4pm_stringmaster.pl
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_stringmasterall.pl
+
+    * Deprecated and REMOVED from the baseline.
+
+s4pm_sweep_data.pl
+
+    * Changed CLEAN work order name to SWEEP.
+    * Added a new argument, -a, which tells the program to deallocate the actual
+      file size, instead of the maxsize. This needs to be used in conjunction 
+      with the -d option in s4pm_register_data.pl to make the final deallocation
+      come out right.
+    * The disk deallocation has been moved and modified heavily, to 
+      S4PM::free_disk().
+    * Added a new argument, -expire expiration_file, which if set, will cause 
+      the program to write the URs of data being swept to that file. This is 
+      intended to allow an external script to manually expire data staged for 
+      on-demand before its default timeout.
+
+s4pm_tk_admin.pl
+
+    * Changed NEWDATA_algorithm work order name in code to SELECT_algorithm.
+    * Changed MOREDATA_algorithm work order name to FIND_algorithm.
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm.
+    * Changed GETDISK_algorithm work order name to ALLOCATE_algorithm.
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_tk_algorithm_info.pl
+
+    * Modified to screen out algorithms that are not currently configured to run
+      in the string. It does this by checking the station.cfg file in the Run 
+      Algorithm station.
+
+s4pm_tk_disk_alloc.pl
+
+    * Added -g <format> option to display GB instead of files.
+    * Added -x <pool,pool,...> option to exclude one or more pools from display.
+      This is recommended for smart disk allocation with symbolic links. Such 
+      pools are essentially not managed for disk allocation.
+
+s4pm_tk_trmon.pl
+
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm.
+    * Changed GETDISK_algorithm work order name to ALLOCATE_algorithm.
+
+s4pm_track_data.pl
+
+    * Changed CLEAN work order name to SWEEP.
+
+s4pm_track_requests.pl
+
+    * Changed TRIGGER_algorithm work order name to PREPARE_algorithm.
+    * Changed GETDISK_algorithm work order name to ALLOCATE_algorithm.
+
+stationmaster.pl
+
+    * Changed GETDISK_algorithm work order name to ALLOCATE_algorithm in prolog.
+
+Subscription.pm
+
+    * Modified to allow regular expressions for specifying data version in 
+      subscriptions configuration.
+    * Inlcuded quoting of arguments in mail command.
+
+TestSupport.pm
+
+    * New module has been added to assist in the creation of test data suites 
+      for automated testing. Its reliability is as yet uncertain.
+
+--------------------------------------------------------------------------------
+Oct 12, 2005
+--------------------------------------------------------------------------------
+
+1. S4PM 5.8.1 Release Notes
+
+1.1. Functional Changes
+
+   1. Find Data Smart Polling: Smart polling functionality has been added to
+      Find Data. When this option is invoked (via the -smart option), the
+      frequency of Find Data polling of the file system will decrease over time
+      at a prescribed step function rate when no data are found. Once a data
+      file is found, the rate of polling is reset to its highest starting value
+      (the theory being that once a data file is found, the likelihood of
+      finding other data files is increased). The rate at which polling
+      decreases over time (when no data are found) is configurable although
+      there is a reasonable default if not specified. See the
+      s4pm_stringmaker_string.cfg file for information on setting and defining
+      smart polling in the Find Data station. Note that even as the frequency
+      of polling decreases, the rate at which signal files are polled for
+      remains the same. Thus, an operator can still issue a Ignore Option
+      manual override and expect a fairly quick response regardless of what
+      the current file system polling rate is.
+
+   2. Allocate Disk Bundled Allocation: The requests for disk pool space in
+      the Allocate Disk station are handled more intelligently in this release.
+      Rather than making a request for each data file as the input work order
+      (PCF) is scanned, requests are first bundled by data type. After the
+      scanning is complete, requests are made in bulk for each data type found.
+      In this way, a PCF that has multiple outputs of the same data type
+      results in a single, aggregated request for disk space rather than
+      multiple individual requests. This should prevent a situation where more
+      than one algorithm run, each having multiple outputs of the same data
+      type, compete for space with none of them actually getting all the space
+      required (even though there is enough space for at least one run).
+
+   3. PH Export Consistency: A bug was fixed whereby a string with none of the
+      algorithms configured for Production History (PH) generation could
+      nonetheless be configured to export those same PH files. Checking has
+      been implemented so that there needs to be at least one algorithm
+      configured for PH generation in order for the string as a whole to be
+      configured to export PH.
+
+   4. Auto Request Bug Fix: The Auto Request tool has been fixed so that it
+      doesn't grow too wide when many data types are included. An additional
+      row is added for every 10 data types.
+
+   5. Command-line S4PM Administration: The S4PM Administration tool can be run
+      on the command line (without a GUI) with the -task option. The -force
+      option was intended to allow the tool to be run non-interactively from
+      the command line (for example, by a script rather than a person). But
+      the check it did for unrecognized files was still interactive. In this
+      release, if the -force option is used, it is assumed that you don't want
+      it to run interactively. Hence, the checking of unrecognized files in
+      this case is disabled in this release.
+
+   6. S4P::read_config_file Deprecation: The function S4P::read_config_file()
+      has been replaced by using the Safe module in almost all scripts.
+
+   7. Time Tools Daylight Savings Time bug: The Add_Delta_DHMS() in
+      TimeTools.pm had a bug that produced incorrect results when times spanned
+      a switch to or from daylight savings time. This bug has been fixed.
+
+   8. Leapsec Correction Bug: A fix was made to S4PM::leapsec_correction()
+      which caused it to not handle leap seconds properly.
+
+   9. Stringmaster Deprecation: Note that this is the last release that
+      contains Stringmaster. In subsequent releases, Stringmaster will be
+      dropped from the baseline. Use Stringmaker instead.
+
+  10. External Product Dispatcher: This release includes support for the ECS
+      External Product Dispatcher (EPD) system in on-demand processing strings.
+      This support includes code changes to s4pm_track_requests.pl,
+      s4pm_export.pl, s4pm_receive_pan.pl, in order of decreasing lines of
+      code. It has also necessitated changes to a number of configuration
+      files to handle a new job type (EXPORT_EPD) between the Track Requests
+      and Export stations, and a new datatype (SBSTDATA) and destination (EPD)
+      in the Export station. The .procmailrc mail filter also requires changes
+      to intercept emailed PANs. The EPD mechanism is the default for all
+      requests coming from the V0 Data Gateway. For such requests, the Ship
+      Data station is not used. For requests not coming from the V0 Data
+      Gateway, the old Distribution Command Line Interface (DCLI) is still
+      used in the Ship Data station.
+
+  11. Optional $stats_index_datatype: In previous releases, the
+      $stats_index_datatype parameter set in the Stringmaker algorithm
+      configuration file was mandatory. In 5.8.0, it is optional. The default
+      value is the first element of the @stats_datatypes array (i.e.
+      $stats_datatypes[0]).
+
+  12. s4pm_algorithm_stats.cfg Bug: A bug was fixed in the generation of the
+      s4pm_algorithm_stats.cfg file which is used to generate volume and
+      performance statistics for algorithms. The bug basically broke this
+      configuration file and hence, the statistics generated. This bug has
+      been fixed.
+
+  13. Automatic Determination of %output_uses: In previous releases, the
+      %output_uses parameter hash was required in all Stringmaker algorithm
+      configuration files. In 5.8.0, the need for this parameter has been
+      removed and output uses are determined automatically. The %output_uses
+      parameter hash is now ignored. Note that this change addresses a bug
+      that occurred when two or more algorithms producing the same output data
+      type resulted in an incorrect output uses setting in the
+      s4pm_register_data.cfg file in the Register Local Data station. Since
+      the output uses are determined automatically, this bug no longer occurs.
+
+  14. Adjustable Log Levels: S4P::logger will now consult the environment
+      variable S4P_LOG_LEVEL before outputting a message. This log level is
+      the minimum severity to log, but is set as text. The order of severities,
+      from lowest to highest is:
+         1.  DEBUG
+         2.  INFO
+         3.  WARNING
+         4.  ERROR
+         5.  FATAL
+
+      Thus, if the S4P_LOG_LEVEL is set to "WARNING", only WARNING, ERROR and
+      FATAL messages will be logged. The OUTPUT_DEBUG environment variable is
+      deprecated, though the code is backward compatible.
+
+  15. Performance Improvements in On-Demand - A number of changes should
+      increase performance in On-Demand strings:
+
+      (a) The Find Data work order recycling frequency was shortened from 300
+          seconds to 1 second. This should alleviate the problem of jobs
+          building up in the Find Data station.
+
+      (b) The disk pools in On-Demand strings has been condensed to just two:
+          INPUT and OUTPUT. All output data types are assigned to the OUTPUT
+          disk pool. This should free up more space for processing or at least
+          prevent space from being squandered.
+
+      (c) The sort order in the Run Algorithm station was changed to FIFO which
+          should increase performance when under heavy load.
+
+  16. Symbolicly linked input files now accounted for correctly - In strings
+      that take advantage of symbolicly linking to the input data (e.g. to the
+      ftp pull area on Datapool), the space allocations are automatically
+      adjusted for the fact that the links themselves occupy almost no disk
+      space. In previous releases, a lot of space was allocated for each data
+      file without regard to whether it was an actual file or only a symbolic
+      link.
+
+  17. Fix to the Punt Failure Handler - A bug that caused the Punt failure
+      handler to fail was fixed. This involved a minor fix to
+      s4pm_failed_pge_handler.pl as well as a fix to the Stringmaker code
+      itself in how it generated a supporting configuration file.
+
+  18. New $toolkit_root Stringmaker Parameter - A new parameter, $toolkit_root,
+      has been added to Stringmaker. It is in the host configuration file by
+      default. This new parameter sets the location of the ECS Toolkit. The
+      default location is $ecs_root/TOOLKIT/toolkit.
+
+1.2. Detailed File Changes
+
+.procmailrc
+
+    * Modified to handle emailed PANs such as those generated by EPD, e.g.:
+
+        :0 b 
+        * ^Subject:.*PDR Acceptance Notice: *\/S4PM.*PAN
+        $HOME/g0dus02/on_demand/neutral/receive_pan/$MATCH
+
+PDR.pm, FileGroup.pm, FileSpec.pm
+
+    * Added ability to specify whether equals signs are offset by spaces
+
+S4P.pm
+
+    * Modified S4P::logger() to consult environement variable S4P_LOG_LEVEL 
+      before outputting log messages.
+
+S4PM.pm
+
+    * Modified the function S4PM::parse_patterned_filename() to return the file 
+      name extension as the last parameter.
+    * Fixed a bug in S4PM::leapsec_correction() that produced an erroneous time 
+      correction.
+    * Changed some INFO messages to DEBUG messages.
+
+s4pm_algorithm_stats.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_allocate_disk.pl
+
+    * Modified call to S4PM::parse_patterned_filename due to the change to 
+      this function.
+    * Modified so that multiple requests for a single data type are bundled 
+      when calling S4P::ResPool::update_pool(). This should help prevent disk 
+      pool lock-outs when more than one such algorithm is competing for the 
+      same space.
+
+s4pm_compose_request.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_create_string.pl
+
+    * Updated code to work with Stringmaker rather than the now obsolete 
+      Stringmaster.
+    * Got rid of hardwired e-mail address.
+
+s4pm_delete_expired_data.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_export.cfg
+
+    * Added EPD destination for On-demand instances.
+    * Added SBSTDATA mapping to above EPD destination.
+
+s4pm_export.pl
+
+    * Applied more uniform approach to log and failure messages (S4P::logger() and S4P::perish()).
+    * Replaced S4P::read_config_file() with Safe.
+    * Modified to process the EPD destination slightly differently, tweaking 
+      the PDR to conform to the External Subsetter ICD.
+
+s4pm_failed_pge_handler.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+    * Fixed a typo causing the Punt failure handler to fail.
+
+s4pm_failed_service_handler.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_find_data.cfg
+
+    * Modified with two additional parameters: @cfg_intervals and @cfg_freqs. 
+      These new parameters support the new smart polling feature of Find Data.
+    * In keeping with tradition, the parameter name $Polling_Interval was 
+      changed to $cfg_polling_interval.
+
+s4pm_find_data.pl
+
+    * Implemented smart polling which is invoked with the -smart option. 
+      Adding this capability required some refactoring of the exiting code, 
+      particularly in fill_in_optional_file_groups() and 
+      fill_in_required_file_groups(). The code for snoozing between polling 
+      cycles was removed and put into a new subroutine, doze(). In addition, 
+      the subroutine get_polling() was added to return the polling frequency 
+      at any time.
+
+s4pm_poll_data.pl
+
+    * Modified call to S4PM::parse_patterned_filename due to the change to 
+      this function.
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_prepare_run.pl
+
+    * Applied more uniform approach to log and failure messages (S4P::logger() 
+      and S4P::perish()).
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_preprocess_order.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_preselect_data.pl
+
+    * Applied more uniform approach to log and failure messages (S4P::logger() 
+      and S4P::perish()).
+
+s4pm_receive_pan.pl
+
+    * Modified to guess the file_type if not specified in the PDR (as for EPD 
+      PDRs).
+    * Tries to find PDRs in Limbo only if cfg_pdr_limbo variable is set. 
+      Configuration should be to NOT set it for EPD instances.
+
+s4pm_request_data.pl
+
+    * Generalized the way that the UR is modified so that it will work in any 
+      ECD DAAC.
+    * Replaced S4P::read_config_file() with Safe.
+    * Applied more uniform approach to log and failure messages (S4P::logger() 
+      and S4P::perish()).
+
+s4pm_resubmit_pdr.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_run_algorithm.pl
+
+    * Modified call to S4PM::parse_patterned_filename due to the change to 
+      this function.
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_run_easy.pl
+
+    * Modified call to S4PM::parse_patterned_filename due to the change to 
+      this function.
+
+s4pm_select_data.pl
+
+    * Applied more uniform approach to log and failure messages (S4P::logger() 
+      and S4P::perish()).
+
+s4pm_ship_data.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_show_pge.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_split_order.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_split_services.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_stringmaker.pl
+
+    * Changed Stringmaster to Stringmaker in several locations including what 
+      is written out in a Trouble Ticket.
+    * Fixed a bug in how the s4pm_algorithm_stat.cfg file is generated.
+    * Removed the reading of output uses and their summing as output uses 
+      determination has been moved to the s4pm_stringmaker_derived.cfg file.
+    * Addressed the bug of the s4pm_failed_pge_handler.cfg file %Uses hash not 
+      getting constructed automatically. The problem was due to a substantial 
+      amount of code somehow getting dropped from this script. That code was 
+      added back in. (TT 16011)
+    * Modified alloc_disk_setup() and generate_pool_capacities() subroutines 
+      so that in any strings employing symbolic links in the INPUT disk pool 
+      would force input data type file sizes to 2048 bytes (just enough to 
+      support space for the link) rather than the actual file size.
+    * Modified code so that for on-demand strings, only two disk pools are 
+      created: INPUT and OUTPUT with all output data types being assigned to 
+      the OUTPUT disk pool. This should increase performance.
+
+s4pm_stringmaker_algorithm.cfg
+
+    * Modified internal documentation to indicate that $stats_index_datatype 
+      is optional and not required (it defaults to the first in the 
+      @stats_datatypes array.
+
+s4pm_stringmaker_datatypes.cfg
+
+    * Added documentation to illustrate the use of the %browse_map parameter.
+
+s4pm_stringmaker_derived.cfg
+
+    * Removed references to variable $make_ph as it is not used in Stringmaker. 
+      Instead, the hash %all_ph_algorithms is used. Code was modified to 
+      properly use this hash and to not configure for export of PH unless at 
+      least one algorithm is configured to produce it.
+    * Added functionality to support Find Data smart polling.
+    * Fixed bug preventing sub_notify from being included in the station list 
+      in the s4pm_start.ksh script.
+    * Changed default priority for on-demand in the ACQParmfile from HIGH to 
+      NORMAL.
+    * Added some very gratuitous code so that for AIRS production, a work order 
+      of type REQUEST_DATA_AIRS is included in the station.cfg file of the 
+      Request Data station. Although gratuitous, it isn't harmful to any other 
+      type of processing.
+    * Set $cfg_root in Auto Request station section correctly. It had been set 
+      to the default "../.." which is incorrect since this station is under 
+      the S4PM global root.
+    * Made a number of changes to support ECS PDR Distribution (EPD) in 
+      On-Demand strings affecting the Track Requests, Export, and Receive PAN 
+      stations.
+    * Fixed a bug in how the s4pm_algorithm_stat.cfg file is generated.
+    * Added some lines to include automatically the output uses. The 
+      determination of output uses was removed from s4pm_stringmaker.pl and 
+      placed here.
+    * Modified to automatically create the DATA/REQUESTS directory in on-demand 
+      strings to support EPD.
+    * Replaced the $gear parameter with $instance as it affects data mining 
+      edition (DME) strings.
+    * Changed the recycling frequency of work orders in the Find Data station 
+      for on-demand strings from 300 seconds to 1 second. This appears to 
+      increase overall performance.
+    * Changed sort order to FIFO in Run Algorithm station for on-demand 
+      strings. This should help performance under heavy load.
+    * Modified to use the new $toolkit_root parameter as set (by default) in 
+      the Stringmaker host configuration file. It defaults to 
+      $ecs_root/TOOLKIT/toolkit.
+
+s4pm_stringmaker_host.cfg
+
+    * Added the new parameter $toolkit_root. This parameter defines the 
+      location of the ECS Toolkit and it defaults to 
+      $ecs_root/TOOLKIT/toolkit if not set. This allows ECS sites to point to 
+      a non-standard location for the ECS Toolkit.
+
+s4pm_stringmaker_string.cfg
+
+    * Added documentation and examples of the new paramters that support smart 
+      polling in Find Data: $smart_polling, @smart_polling_intervals, 
+      @smart_polling_freqs.
+
+s4pm_sweep_data.pl
+
+    * Modified call to S4PM::parse_patterned_filename due to the change to 
+      this function.
+    * Applied more uniform approach to log and failure messages (S4P::logger() 
+      and S4P::perish()).
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_tk_admin.pl
+
+    * Disabled the running of ExtraFiles() if the -force option is set. The 
+      ExtraFiles() checks for unrecognized files and if found, prompts the 
+      user whether or not to delete them. When using the -force option, 
+      however, it is assumed that a script rather than a user is running it. 
+      Therefore having prompts is a problem.
+
+s4pm_tk_auto_request.pl
+
+    * Modified so that data type buttons are displayed in additional rows, 
+      10 per row, if more than 10. This keeps display from being too wide.
+
+s4pm_tk_compose_request.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_tk_compose_single_request.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_tk_disk_alloc.pl
+
+    * Replaced S4P::read_config_file() with Safe.
+
+s4pm_track_requests.pl
+
+    * Got rid of redundant S4P::read_config_file() call. The configuration 
+      file is already being read using Safe.
+    * If request was received through V0 Gateway (identified by the JOB_ID), 
+      it outputs an EXPORT_EPD PDR instead of SHIP.
+    * Processes PDRs from Receive PAN to close orders.
+    * Out of order processing: If work order is received from Find Data before 
+      Request Data, assumes that everything is fine and updates the status 
+      anyway. Also, if Request Data status cannot be updated (because it is 
+      already past that point), exits gracefully instead of failing.
+
+stationmaster.pl
+
+    * Added $cfg_rename_retries and $cfg_rename_retry_interval to work around 
+      the problem when Windows holds onto a file too long causing a directory 
+      rename to fail.
+    * Added restart_station functionality to restart itself.
+
+TimeTools.pm
+
+    * Replaced timelocal() with timegm() in function Add_Delta_DHMS() to avoid 
+      problems with daylight savings time.
+
+tkstat.pl
+
+    * Added Restart button for station menus.
+
+--------------------------------------------------------------------------------
+Aug 5, 2005
+--------------------------------------------------------------------------------
+1. S4PM 5.7.1 Release Notes
+
+1.1. Functional Changes
+
+   1. Fixed a bug in the suspend/resume capability via the S4PM Job Monitor 
+      window. The 'Resume' button had been disabled after selecting 'Suspend'. 
+      This should be fixed now.
+
+   2. This release now supports the setting up of symbolic links in the INPUT 
+      disk pool to data residing on a local disk somewhere outside of S4PM. It 
+      is intended for On-Demand processing where, with ECS, data are distributed
+      via FTP pull Synergy 4 path. Rather than copying the data over from 
+      Datapool to the S4PM INPUT disk pool, symbolic links are instead set up. 
+      This can only be used if the data reside on a disk visible to the machine 
+      where S4PM is running (i.e. mounted). To invoke this feature, set the 
+      parameter $input_symlink_root in the Stringmaker/Stringmaster string 
+      configuration file. It also requires that the parameter $s4pm_email be 
+      set in the Stringmaker/Stringmaster global configuration file. Note ECS 
+      users that you must also configure all input data types for Synergy 4 
+      path.
+
+   3. A number of changes have been made to address performance in On-Demand 
+      processing. The sort order in the Request Data and Find Data stations 
+      have been changed to 'FIFO' (first in, first out). In addition, the Find 
+      Data station in On-Demand is configured to recycle work orders every 5 
+      minutes rather than sitting on them for the time specified in the 
+      algorithm configuration files. This means that in On-Demand, the timers 
+      specified in those algorithm configuration files are ignored. At the end 
+      of 5 minutes, if data has not been found, the work order is recycled and 
+      goes to the back of the queue. During the 5 minutes a job is running, 
+      the manual overrides such as IGNORE_OPTIONAL still function normally. 
+      Because of this configuration, jobs in Find Data will never fail due to 
+      missing data.
+
+   4. Fixed bug in Select Data that was affecting algorithms using the file 
+      accumulation production rule and the pre-processing offset option.
+
+   5. Fixed a logic bug in the Prepare Run station that caused two outputs of 
+      the same data type and data time in the generated PCF to have the same 
+      exact file name (under some circumstances). This resulted in all but one 
+      of the files getting clobbered.
+
+   6. Fixed a small cosmetic bug in the Register Data station that caused data 
+      ordered via the Composed Data Request tool to have the file name 
+      extension .hdf.hdf.
+
+   7. Fixed a bug in Run Algorithm that prevented Production History (PH) files 
+      from being exported to the ECS archive (TT 15441).
+
+   8. Fixed bug that prevented Request Data stub files from getting properly 
+      cleaned out (TT 15490).
+
+1.2. Detailed File Changes
+
+PAN.pm
+
+    * Modified a reference to PDR to S4P::PDR.
+    * Updated write() to support optional FTP-Push of PAN (backward 
+      compatible).
+
+s4pm_derived.cfg
+
+    * Modified so that in On-Demand, the $cfg_sort_jobs is set to 'FIFO'. This 
+      has proven to increase performance.
+    * Reconfigured Find Data for On-Demand to work with 
+      s4p_repeat_work_order.pl.
+
+s4pm_find_data.pl
+
+    * Added a new option to support running the script with 
+      s4p_repeat_work_order.pl in On-Demand strings. The new option is -recycle 
+      and its argument is the number of seconds to wait before recycling the 
+      work order.
+
+s4pm_global.cfg
+
+    * Added new parameter: $s4pm_email. It is required when $input_symlink_root 
+      is set, but otherwise ignored.
+
+s4pm_prepare_run.pl
+
+    * Fix for problem that showed up in AIRS processing of their summary browse 
+      product. The problem was that for two different LUNs, the output file 
+      names were identical resulting in one getting clobbered. The code should 
+      have checked for file name uniqueness, but the logic didn't work. The 
+      logic was fixed.
+
+s4pm_register_data.pl
+
+    * Removed a line that was adding a .hdf file name extension back into the 
+      file name formed. This is no longer needed and was causing a double .hdf 
+      extension to be added, e.g.: .hdf.hdf.
+
+s4pm_request_data.pl
+
+    * Fixed bug whereby request data stub files were being incorrectly named 
+      and therefore, not getting cleaned out when proxy data types were in 
+      use, typically in On-Demand strings (TT 15490).
+
+s4pm_run_algorithm.pl
+
+    * Fix a problem having to do with Production History files whereby the 
+      data type (PH) was not being set correctly in the PDR for moving the PH 
+      files into the archive (TT 15441).
+
+s4pm_select_data.pl
+
+    * Fix in get_process_start_time(). It was missing a line to apply a 
+      pre-processing offset if the file accumulation production rule was used. 
+      This missing line was added back in.
+
+s4pm_split_services.pl
+
+    * Modified to consider a delete from archive flag of 'G' to be the same 
+      as 'N'.
+
+s4pm_string.cfg
+
+    * Added example and description of new parameter: $input_symlink_root. 
+      This parameter, intended for data ordered via FTP pull, causes data in 
+      the INPUT disk pool to be symlinked to data in the $input_symlink_root.
+
+s4pm_stringmaker.pl
+
+    * A missing close statement in update_configurator() was causing the 
+      s4pm_configurator.cfg file to be written as a zero length file. A close 
+      statement was added to fix this.
+    * Modified so that it would only add the FTPPASSWORD parameter to the 
+      ACQParmfile if the parameter $input_symlink_root isn't set.
+
+s4pm_stringmaker_derived.cfg
+
+    * Modified so that in On-Demand, the $cfg_sort_jobs is set to 'FIFO'. This 
+      has proven to increase performance.
+
+s4pm_stringmaker_global.cfg
+
+    * Added new parameter: $s4pm_email. It is required when $input_symlink_root 
+      is set, but otherwise ignored.
+
+s4pm_stringmaker_string.cfg
+
+    * Added example and description of new parameter: $input_symlink_root. 
+      This parameter, intended for data ordered via FTP pull, causes data in 
+      the INPUT disk pool to be symlinked to data in the $input_symlink_root.
+    * Reconfigured Find Data for On-Demand to work with 
+      s4p_repeat_work_order.pl.
+
+s4pm_stringmaster.pl
+
+    * Modified so that it would only add the FTPPASSWORD parameter to the 
+      ACQParmfile if the parameter $input_symlink_root isn't set.
+
+s4p_subscribe.pl
+
+    * Modified references to S4P::S4P::Subscription::* to S4P::Subscription::*.
+
+stationmaster.pl
+
+    * When job fails due to non-log files being present, it will now print 
+      out their names in the station.log file.
+
+Subscribe.pm
+
+    * Updated documentation (corrected %cfg_data_url with %cfg_url in POD to 
+      reflect what is in the code).
+
+Tkjob.pm
+
+    * Fixed the suspend/resume functionality in configure_job_buttons().
+
+--------------------------------------------------------------------------------
+Jul 26, 2005
+--------------------------------------------------------------------------------
+1. S4PM 5.7.0 Release Notes
+
+1.1. Functional Changes
+
+   1. In the Stringmaker string-specific configuration file, the array 
+      @all_external_datatypes no longer needs to be specified. Instead, 
+      Stringmaker will compute it and ignore the @all_external_datatypes 
+      parameter in the string configuration file.
+
+   2. Access control lists for privileged users is handled differently. Rather 
+      than hardwiring the names of these users in the Stringmaker configuration 
+      files, instead a @privileged_users array is set in the Stringmaker global 
+      configuration file (s4pm_stringmaker_global.cfg) or actually in any 
+      configuration file if desired.
+
+   3. Consistency checking has been added to Stringmaker so that if some 
+      parameters are specified or set, Stringmaker will let you know if you 
+      have failed to also include dependent parameters (e.g failed to specify 
+      the staging directory if you specified some data types as going to the 
+      data pool).
+
+   4. In previous releases, the Stringmaker jobs configuration file 
+      (s4pm_stringmaker_jobs.cfg) had to be left checked out of SCCS or RCS 
+      (i.e be writable) in order for the Modify Max Jobs tool to work. In this 
+      release, it can be left checked in. Arbitrary methods for checking in and 
+      checking out files can be specified in the s4pm_configurator.cfg file. 
+      The Modify Max Jobs tool will automatically apply these methods if they 
+      are set.
+
+   5. In previous releases, the expiration times for all data types had to be 
+      specified in the Stringmaker string-specific configuration file with a 
+      hash setting each data type individually. As a shortcut, this release 
+      allows $data_expiration_max_hours to be set once in the Stringmaker 
+      global configuration file and have it apply it to all data types. It is 
+      only useful if a single expiration time makes sense for all data types.
+
+   6. The time increments as shown in the Compose Data Request tool and the 
+      Fill Hole tool are now configurable via the %ordering_tool_parms hash. 
+      If not set, it defaults to 7200 seconds for the large increments in the 
+      Compose Data Request tool and 300 seconds for the small increments in 
+      the Fill Hole tool.
+
+   7. Added a new parameter to the parameters available in the Stringmaker 
+      algorithm configuration file: %file_accumulation_parms. This single hash 
+      specifies everything that is needed for implementing the file accumulation
+      production rule and replaces the previous multi-step "recipe" that was 
+      needed before. In 5.7.0, the new %file_accumulation_parms and the old 
+      "recipe" are both supported, but the old recipe should be considered 
+      deprecated.
+
+   8. Release 5.6.2 required you to update or create the s4pm_configurator.cfg 
+      file in the Stringmaker root directory manually. In this release, the 
+      file is created or updated automatically.
+
+   9. This release introduces configurable S4PM file names via the 
+      $s4pm_filename_pattern parameter in the Stringmaker data types 
+      configuration file (s4pm_stringmaker_datatypes.cfg). If set, the 
+      environment variable S4PM_CONFIGDIR must also be set to the location of 
+      the Stringmaker directory (which is equal to the $stringmaker_root 
+      parameter in the Stringmaker global configuration file). The default is 
+      the standard S4PM file name pattern.
+
+  10. In S4PM-DME, an email notification can optionally be sent to notify the 
+      recipient that a new Data Mining string has been created. This has been 
+      implemented via a -m email_address option on the s4pm_create_string.pl 
+      script.
+
+  11. For On-Demand strings, the job sort order in the Find Data station was 
+      changed from its default (by algorithm) to FIFO (first in, first out). 
+      This has been demonstrated to help in keeping large orders moving through 
+      the system together leading to improved performance overall. (Trouble 
+      Ticket 15111)
+
+1.2. Detailed File Changes
+
+Algorithm.pm
+
+    * Modified accumulation_start() so that it uses the processing start 
+      parameter when determining the start of an accumulation window.
+    * Modified to read new optional parameter in the algorithm configuration 
+      files: %file_accumulation_parms.
+
+Configurator.pm
+
+    * Added the function get_machine_name() that returns the machine name for 
+      a particular string ID.
+
+S4P::TimeTools.pm
+
+    * Added a number of functions to support flexible file names in S4PM:
+
+          S4P::TimeTools::CCSDStoy(), S4P::TimeTools::CCSDStoY(), 
+          S4P::TimeTools::CCSDStom(), S4P::TimeTools::CCSDStod(), 
+          S4P::TimeTools::CCSDStoH(), S4P::TimeTools::CCSDStoM(), 
+          S4P::TimeTools::CCSDStoS(), S4P::TimeTools::CCSDStoj(), 
+          S4P::TimeTools::CCSDStoB(), S4P::TimeTools::CCSDStob(), 
+          S4P::TimeTools::CCSDStou(),
+
+S4PM.pm
+
+    * Added a number of functions to support flexible file naming within S4PM. 
+      The function S4PM::make_patterned_filename() will generate a file name 
+      when given a file name pattern, data type name and version, and a CCSDS 
+      date/time string. S4PM::parse_patterned_filename() will retrieve the data 
+      type name and version, and date/time string when given a pattern and a 
+      file name. S4PM::make_patterned_glob() will generate a glob pattern.
+
+s4pm_allocate_disk.pl
+
+    * Modified to use the new S4PM::parse_patterned_filename() routine.
+    * Made error messages more clear when a data type could not be found in 
+      one of the Allocate Disk configuration files, particularly if $datatype 
+      evaluates to the empty string.
+
+s4pm_create_string.pl
+
+    * Added the -m option that allows an email notification to go to some 
+      recipient notifying them of the creation of a new DME string.
+
+s4pm_derived.cfg
+
+    * Changed sort order for Find Data station to FIFO in on-demand strings.
+
+s4pm_find_data.pl
+
+    * Modified to use the new S4PM::make_patterned_glob() routine.
+
+s4pm_poll_data.pl
+
+    * Commented out a S4P::perish() statement and a print statement that were 
+      causing the chain logs to grow to very large sizes.
+
+s4pm_prepare_run.pl
+
+    * Modified code to make use of the new S4PM::make_patterned_filename() 
+      routine. This allows the script to work with the new flexible file 
+      naming feature. Other code cleanup was done too.
+    * Fix for Trouble Ticket 15093 causing failures when an algorithm in 
+      on-demand was configured to read its PSPEC file directly rather than 
+      indirectly via the PCF.
+
+s4pm_purge_bad_data.pl
+
+    * Modified code to make use of the new S4PM::make_patterned_filename() 
+      routine. This allows the script to work with the new flexible file 
+      naming feature.
+
+s4pm_register_data.pl
+
+    * Replaced called to S4PM::make_s4pm_filename() to 
+      S4PM::make_patterned_filename(), a function that allows flexible S4PM 
+      file names.
+
+s4pm_regular_block.pl
+
+    * Added support for new boundaries: START_OF_2HOUR, START_OF_4HOUR, 
+      START_OF_6HOUR, START_OF_12HOUR.
+
+s4pm_request_data.pl
+
+    * Bug fix for TT 15176. The fix makes sure that the data type name is part 
+      of the request stub file name so that later, when it comes time to delete 
+      the stub file, the Sweep Data station can find it more efficiently.
+    * Added the -x option to the call to ssh when the SCLI is invoked on an 
+      external host. This disables X forwarding which was causing problems for 
+      DME.
+
+s4pm_run_algorithm.pl
+
+    * Cleaned up the call to S4PM::parse_s4pm_filename().
+
+s4pm_run_easy.pl
+
+    * Modified to call S4PM::make_patterned_filename() instead of 
+      S4PM::make_s4pm_filename().
+    * Fixed a scoping bug that prevented the output tar option from working 
+      correctly.
+
+s4pm_select_data.pl
+
+    * Fixed a bug in the file accumulation production rule whereby the 
+      processing start time in the output work order was incorrect. This was 
+      fixed by having it make a call to Algorithm::accumulation_start() to 
+      determine the proper processing start time.
+
+s4pm_ship_data.cfg
+
+    * Removed the $ecs_mode parameter as the mode is now determined 
+      automatically.
+
+s4pm_ship_data.pl
+
+    * Removed need to specify mode in the s4pm_ship_data.cfg file and instead 
+      determine mode via S4PM::mode_from_path().
+
+s4pm_static.cfg
+
+    * Added code to place the $s4pm_filename_template parameter in the 
+      s4pm_register_data.cfg and s4pm_prepare_run.cfg configuration files.
+
+s4pm_stringmaker.pl
+
+    * Added extra checking of dependent parameters (e.g. if you specify data 
+      types in @datapool_insert_datatypes, then you need to set 
+      $datapool_staging_dir as well.
+    * Added a subroutine to compute @all_external_datatypes so that there is no 
+      need to specify it in the string-specific configuration file.
+    * Added code to read in the new optional %file_accumulation_parms hash.
+    * Added get_punt_uses() function and a number of supporting functions to 
+      compute the uses that go into the s4pm_failed_pge_handler.cfg file. The 
+      uses in this file is the mechanism for balancing the books when a PGE is 
+      punted. The uses were computed via hardwired, MODIS-specific lines in 
+      the s4pm_stringmaker_derived.cfg file. This is now fully computed based 
+      upon mix of algorithms running in the string.
+    * Added a subroutine to build the multi-string s4pm_configurator.cfg file. 
+      It backs up the old one first.
+    * Added checking to be sure that the uses set in the algorithm configuration
+      files were not zero or blank.
+
+s4pm_stringmaker_derived.cfg
+
+    * Minor correction to spelling of 'Uninstall Algorithm' interface in the 
+      Configurator station. It had been 'Unnstall Algorithm'.
+    * Modified so that in the Insert Datapool station, the machine name on 
+      which to stage the data is passed along with the directory name in the 
+      $datapool_staging_dir parameter, rather than being hardwired.
+    * Modifed to use the new @privileged_users parameter rather than hardwiring 
+      the names of special privileged users.
+    * Modified to key off of the setting for $domain to decide if the command 
+      for invoking the Modify Max Jobs window should have the -t (for submitting
+      a Trouble Ticket via Remedy) or not. This is not very satisfying, but it 
+      addresses a current bug in 5.6.2 for users beyond the GES DAAC.
+    * Modified the handling of increments in the Compose Data Request and Fill 
+      Hole tools. The larger increment was hardwired to 7200 and the smaller 
+      was set based on algorithm name (10 for an algorithm beginning with 'Ai' 
+      for example. This is still the default. However, the parameter hash 
+      %ordering_tool_parms can now override these defaults. It contains two 
+      attributes: 'increment' to set the larger increment and 'files_per_hour' 
+      to set the small.
+    * Modified to use the new optional %files_accumulation_parms hash for 
+      implementing the file accumulation production rule.
+    * Replaced hardwired, MODIS-specific (and not completely correct) code for 
+      computing uses that go into the s4pm_failed_pge_handler.cfg file with a 
+      line that sets it to the %punt_uses hash that is computed by 
+      s4pm_stringmaker.pl.
+    * Removed setting of the $ecs_mode variable in the s4pm_ship_data.cfg file 
+      as it is no longer needed. Set the $max_item_count to 40 as default.
+    * Fixed a bug in 5.6.2 whereby the stations list compiled by Stringmaker 
+      always included the sub_notify station regardless of whether it actually 
+      existed or not. If it didn't exist, this caused problems in bringing up 
+      the S4PM Monitor (Tkstat). The fix is to only include the sub_notify 
+      station in the stations list if it already exists.
+    * Changed sort order for Find Data station to FIFO in on-demand strings.
+
+s4pm_stringmaker_global.cfg
+
+    * Added new parameter, @privileged_users, that contains the list of users 
+      that are allowed to execute some critical functions (e.g. release job 
+      now). This allows a better mechanism than we have now which is to 
+      hardwire the names of privileged users in the s4pm_stringmaker_derived.cfg
+      file.
+    * Added new parameter, $data_expiration_max_hours, that can be used to set 
+      the expiration time (in hours) of all data types at once. If used, this 
+      would alleviate the need to specify it in the Stringmaker string-specific 
+      configuration file for individual data types.
+
+s4pm_stringmaker_static.cfg
+
+    * Modifed to use the new @privileged_users parameter rather than hardwiring 
+      the names of special privileged users.
+    * Added code to place the $s4pm_filename_template parameter in the 
+      s4pm_register_data.cfg and s4pm_prepare_run.cfg configuration files.
+
+s4pm_stringmaker_string.cfg
+
+    * Updated the prolog on the use of the $datapool_staging_dir parameter.
+    * Updated the prolog to remove description of @all_external_datatypes and 
+      example of its usage (since it is computed automatically now).
+    * Reformatted the prolog to make it easier on outside users.
+    * Added parameter and description of $s4pm_filename_template for setting 
+      the file name patterns in S4PM.
+
+s4pm_tk_admin.pl
+
+    * Added s4pm_configurator.cfg.backup to the skip patterns list.
+    * Added code to remove NEWDATA*.log files from the Select Data station and 
+      TRIGGER*.log files from the Prepare Run station during Full Clean Out.
+
+s4pm_tk_max_children.pl
+
+    * Modified to remove the assumption that string IDs have the form: 
+      S4PMnn_XX_nn as we do at the DAAC. Now, any name will work. The script 
+      now makes use of the s4pm_configurator.cfg file to find out what machine 
+      the string is being run on.
+    * Modified to make use of $cfg_checkout and $cfg_checkin parameters in the 
+      s4pm_configurator.cfg file. Thus, the script will handle the checking out 
+      and checking back in of the s4pm_stringmaker_jobs.cfg file. As a result, 
+      the s4pm_stringmaker_jobs.cfg doesn't have to be perpetually checked out.
+    * Added the -t option which turns on the submission of a Trouble Ticket 
+      after update have been made. This means that users of S4PM outside of 
+      the GES DAAC aren't forced to contend with Remedy!
+
+--------------------------------------------------------------------------------
+Apr 10, 2005
+--------------------------------------------------------------------------------
+1. S4PM 5.6.2 Release Notes
+
+1.1. Functional Changes
+
+   1. Initial open source release of S4PM.

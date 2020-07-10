@@ -1,0 +1,51 @@
+#!/tools/bin/perl
+
+use Getopt::Std;
+use Cwd;
+
+getopts('v:');
+unless ( $opt_v ) {
+    die "\nYou need to specify a version using the -v argument!\n\n";
+}
+my $version = $opt_v;
+
+my $pwd = cwd();
+
+process(".");
+chdir($pwd);
+process("scripts");
+chdir($pwd);
+process("S4P");
+
+sub process {
+
+    my $dir = shift;
+
+    chdir($dir);
+
+### Verify that everything is checked in
+
+    my $tell = `sccs tell`;
+    unless ( $tell eq "" ) {
+        warn "\nERROR: These files are still checked out:\n\n$tell\n";
+    }
+    
+    my @files = glob("./*.pl");
+    @files = (@files, glob("./*.ksh"));
+    @files = (@files, glob("./*.pm"));
+    $/ = undef;
+    print "version: [$version]\n";
+    foreach my $file ( @files ) {
+        print "Checking out $file...\n";
+        my $tmpfile = "$file.tmp";
+        system("sccs edit $file");
+        print "Processing $file...\n";
+        my $edit = "; s/(-\@\@\@.*?Version)\\s+(\\S+)/\$1 $version/";
+        my $cmd = sprintf "perl -pi -e '%s' %s", $edit, $file;
+        system($cmd);
+        print "Checking $file into SCCS...\n";
+        system("sccs delta -y'Updated Version' $file");
+        print "Checking out read-only version of $file.\n";
+        system("sccs get $file");
+    }
+}

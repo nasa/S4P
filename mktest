@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ $# != 1 ] ; then echo "Usage: cminst <mode>" ; exit 1 ; fi
+
+# Set and check mode
+mode=`echo $1 | tr '[a-z]' '[A-Z]'`
+if ( [ $mode != TS2 ] && [ $mode != TS1 ] && [ $mode != OPS ] ) ; then echo "Usage: cminst (ts2|ts1|ops)" ; exit 2 ; fi
+
+# Perl version / architecture info
+perl=/tools/gdaac/COTS/bin/perl
+perlvers=`$perl -e 'use Config; print $Config{"version"}'`
+perlarch=`$perl -e 'use Config; print $Config{"archname"}'`
+perlman1=`$perl -e 'use Config; print $Config{"installman1dir"}'`
+perlman3=`$perl -e 'use Config; print $Config{"installman3dir"}'`
+installman1dir=${perlman1:-/tools/gdaac/$mode/man1}
+installman3dir=${perlman3:-/tools/gdaac/$mode/man3}
+MAN1=${installman1dir:+"INSTALLMAN1DIR=$installman1dir"}
+MAN3=${installman3dir:+"INSTALLMAN3DIR=$installman3dir"}
+
+
+# Set PERLLIB
+export PERLLIB=/tools/gdaac/$mode/lib/perl:/tools/gdaac/$mode/lib/site_perl/$perlvers:/tools/gdaac/$mode/lib/site_perl/$perlvers/$perlarch
+echo PERLLIB=$PERLLIB
+
+# Get machine (must use cc on Irix because that is how Perl was built)
+if [ `uname` = IRIX64 ] ; then CC=cc ; export SGI_ABI=-n32; else CC=gcc ; fi
+
+echo CC=$CC
+
+echo Installing into $mode...
+$perl Makefile.PL \
+PREFIX=/tools/gdaac/$mode PERM_RW=664 PERM_RWX=775 CC=$CC LD=$CC $MAN1 $MAN3 && \
+make && make test
